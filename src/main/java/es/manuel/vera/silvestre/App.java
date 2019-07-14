@@ -23,6 +23,22 @@ public class App{
 
     public static void main(String[] args) throws IOException, GeneralSecurityException{
         StopWatch watch = StopWatch.createStarted();
+
+        List<List<Object>> rawCrew = getRoster();
+
+        //List<Crew> allTimelinesCrew = rawCrew.stream().map(Crew::new).collect(Collectors.toList());
+        List<Crew> allMyCrew = rawCrew.stream().map(Crew::new).filter(Crew::hasStars).collect(Collectors.toList());
+        //List<Crew> allActiveCrew = rawCrew.stream().map(Crew::new).filter(Crew::isActive).collect(Collectors.toList
+        // ());
+
+        calculateAVoyage(allMyCrew);
+        //calculateBestCrew(allMyCrew);
+
+        watch.stop();
+        System.out.println("Total time: " + watch.getTime(TimeUnit.SECONDS));
+    }
+
+    private static List<List<Object>> getRoster() throws IOException, GeneralSecurityException{
         Sheets sheetsService = SheetsServiceUtil.getSheetsService();
 
         ValueRange response = sheetsService.spreadsheets().values().get(SPREADSHEET_ID, "'Stats'").execute();
@@ -35,15 +51,7 @@ public class App{
         rawCrew.remove(0);
         rawCrew.remove(0);
 
-        //List<Crew> allTimelinesCrew = rawCrew.stream().map(Crew::new).collect(Collectors.toList());
-        //List<Crew> allMyCrew = rawCrew.stream().map(Crew::new).filter(Crew::hasStars).collect(Collectors.toList());
-        List<Crew> allActiveCrew = rawCrew.stream().map(Crew::new).filter(Crew::isActive).collect(Collectors.toList());
-
-        calculateAVoyage(allActiveCrew);
-        //calculateBestCrew(allMyCrew);
-        
-        watch.stop();
-        System.out.println("Total time: " + watch.getTime(TimeUnit.SECONDS));
+        return rawCrew;
     }
 
     private static void calculateAVoyage(List<Crew> roster){

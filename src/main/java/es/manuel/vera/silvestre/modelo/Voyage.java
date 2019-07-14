@@ -75,6 +75,21 @@ public class Voyage{
     }
 
     public Double calculateDuration(){
+
+        //(increase for accuracy, decrease for speed!)
+        int numSims = 5000;
+        List<Skill> skills = Arrays.asList(getPrimary(), getSecondary(), getOthers().get(0),
+            getOthers().get(1), getOthers().get(2), getOthers().get(3));
+        List<Integer> results = new ArrayList<>(numSims);
+
+        for(int iSim = 0; iSim < numSims; iSim++){
+            results.add(doSimulation(skills));
+        }
+
+        return results.stream().mapToInt(f -> f).average().orElse(0);
+    }
+
+    private int doSimulation(List<Skill> skills){
         int secondsPerTick = 20;
         int hazardTick = 4;
         int rewardTick = 7;
@@ -84,75 +99,57 @@ public class Voyage{
         int hazSkillPerTick = 7;
         int hazAmPass = 5;
         int hazAmFail = 30;
-        float psChance = 0.35f;
-        float ssChance = 0.25f;
+        int tick = 0;
+        int am = getAntimatter();
 
-        List<Skill> skills = Arrays.asList(getPrimary(), getSecondary(), getOthers().get(0),
-            getOthers().get(1),
-            getOthers().get(2), getOthers().get(3));
-        List<Integer> results = new ArrayList<>(5000);
+        while(tick < 10000 && am > 0){
+            ++tick;
 
-        //(increase for accuracy, decrease for speed!)
-        int numSims = 5000;
+            // hazard && not dilemma
+            if(tick % hazardTick == 0 && tick % hazardAsRewardTick != 0 && tick % ticksBetweenDilemmas != 0){
+                Skill skill = pickSkill(skills);
 
-        for(int iSim = 0; iSim < numSims; iSim++){
-            int tick = 0;
-            int am = getAntimatter();
-
-            while(tick < 10000 && am > 0){
-                ++tick;
-
-                // hazard && not dilemma
-                if(tick % hazardTick == 0
-                    && tick % hazardAsRewardTick != 0
-                    && tick % ticksBetweenDilemmas != 0){
-                    int hazDiff = tick * hazSkillPerTick;
-
-                    // pick the skill
-                    double skillPickRoll = Math.random();
-                    int index;
-                    if(skillPickRoll < psChance){
-                        index = 0;
-                    }else if(skillPickRoll < psChance + ssChance){
-                        index = 1;
-                    }else{
-                        index = 2 + ThreadLocalRandom.current().nextInt(4);
-                    }
-
-                    Skill skill = skills.get(index);
-
-                    // check (roll if necessary)
-                    //float skillVar = hazSkillVariance * skill;
-                    float skillMin = skill.getBase() + skill.getMin();
-                    if(hazDiff < skillMin){ // automatic success
-                        am += hazAmPass;
-                    }else{
-                        float skillMax = skill.getBase() + skill.getMax();
-                        if(hazDiff >= skillMax){ // automatic fail
+                // check (roll if necessary)
+                int hazDiff = tick * hazSkillPerTick;
+                float skillMin = skill.getBase() + skill.getMin();
+                if(hazDiff < skillMin){ // automatic success
+                    am += hazAmPass;
+                }else{
+                    float skillMax = skill.getBase() + skill.getMax();
+                    if(hazDiff >= skillMax){ // automatic fail
+                        am -= hazAmFail;
+                    }else{ // roll for it
+                        double skillRoll = randomRange(skillMin, skillMax);
+                        if(skillRoll >= hazDiff){
+                            am += hazAmPass;
+                        }else{
                             am -= hazAmFail;
-                        }else{ // roll for it
-                            double skillRoll = randomRange(skillMin, skillMax);
-                            if(skillRoll >= hazDiff){
-                                am += hazAmPass;
-                            }else{
-                                am -= hazAmFail;
-                            }
                         }
                     }
-                }else if(tick % rewardTick != 0
-                    && tick % hazardAsRewardTick != 0
-                    && tick % ticksBetweenDilemmas != 0){
-                    am -= amPerActivity;
                 }
+            }else if(tick % rewardTick != 0 && tick % hazardAsRewardTick != 0 && tick % ticksBetweenDilemmas != 0){
+                am -= amPerActivity;
+            }
+        }
 
-                if(am <= 0){
-                    int result = tick * secondsPerTick;
-                    results.add(result);
-                }
-            } // foreach tick
-        } // foreach sim
+        return tick * secondsPerTick;
+    }
 
-        return results.stream().mapToInt(f -> f).average().orElse(0);
+    private Skill pickSkill(List<Skill> skills){
+        float psChance = 0.35f;
+        float ssChance = 0.25f;
+        double skillPickRoll = Math.random();
+
+        int index;
+        if(skillPickRoll < psChance){
+            index = 0;
+        }else if(skillPickRoll < psChance + ssChance){
+            index = 1;
+        }else{
+            index = 2 + ThreadLocalRandom.current().nextInt(4);
+        }
+
+        return skills.get(index);
     }
 
     private double randomRange(float min, float max){
