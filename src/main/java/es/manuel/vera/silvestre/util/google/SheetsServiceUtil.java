@@ -8,15 +8,15 @@ import com.google.api.services.sheets.v4.Sheets;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-public class SheetsServiceUtil {
+public class SheetsServiceUtil{
     private static final String APPLICATION_NAME = "timelines";
 
-    public static Sheets getSheetsService() throws IOException, GeneralSecurityException {
+    public static Sheets getSheetsService() throws IOException, GeneralSecurityException{
         Credential credential = GoogleAuthorizeUtil.authorizeWithServiceCredential();
         return new Sheets.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                JacksonFactory.getDefaultInstance(), credential)
-                .setApplicationName(APPLICATION_NAME)
-                .build();
+            GoogleNetHttpTransport.newTrustedTransport(),
+            JacksonFactory.getDefaultInstance(), credential)
+            .setApplicationName(APPLICATION_NAME)
+            .build();
     }
 }

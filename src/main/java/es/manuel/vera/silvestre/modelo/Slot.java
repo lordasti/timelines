@@ -10,6 +10,14 @@ public class Slot implements Comparable<Slot> {
 
     @Override
     public int compareTo(Slot other) {
-        return Integer.compare(crew.getTotal(), other.getCrew().getTotal());
+        return Double.compare(crew.getVoyageTime(), other.getCrew().getVoyageTime());
+    }
+
+    public boolean isEmpty() {
+        return crew == null;
+    }
+
+    public boolean isNotEmpty() {
+        return !isEmpty();
     }
 }

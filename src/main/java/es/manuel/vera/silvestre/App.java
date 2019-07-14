@@ -8,17 +8,21 @@ import es.manuel.vera.silvestre.modelo.Stats;
 import es.manuel.vera.silvestre.modelo.Voyage;
 import es.manuel.vera.silvestre.util.VoyageUtil;
 import es.manuel.vera.silvestre.util.google.SheetsServiceUtil;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class App {
+public class App{
     private static final String SPREADSHEET_ID = "1JaKMfwTENBJNb5XgnQ4T8A2zWk3azP5lcOkn-2i5F34";
 
-    public static void main(String[] args) throws IOException, GeneralSecurityException {
+    public static void main(String[] args) throws IOException, GeneralSecurityException{
+        StopWatch watch = StopWatch.createStarted();
         Sheets sheetsService = SheetsServiceUtil.getSheetsService();
 
         ValueRange response = sheetsService.spreadsheets().values().get(SPREADSHEET_ID, "'[Voyage] Stats'").execute();
@@ -33,10 +37,12 @@ public class App {
 
         calculateAVoyage(roster);
         //calculateBestCrew(roster);
+        watch.stop();
+        System.out.println("Total time: " + watch.getTime(TimeUnit.SECONDS));
     }
 
-    private static void calculateAVoyage(List<Crew> roster) {
-        Voyage voyage = VoyageUtil.calculateVoyage(new BonusStats(Stats.MEDICINE, Stats.COMMAND), roster);
+    private static void calculateAVoyage(List<Crew> roster){
+        Voyage voyage = VoyageUtil.calculateVoyage(new BonusStats(Stats.SCIENCE, Stats.DIPLOMACY), 2500, roster);
         System.out.println(voyage);
         System.out.println("Command:" + voyage.getCommand());
         System.out.println("Diplomacy:" + voyage.getDiplomacy());
@@ -44,11 +50,11 @@ public class App {
         System.out.println("Engineering:" + voyage.getEngineering());
         System.out.println("Science:" + voyage.getScience());
         System.out.println("Medicine:" + voyage.getMedicine());
-        System.out.println("Total:" + voyage.getTotal());
+        System.out.println("Estimate:" + LocalTime.ofSecondOfDay(voyage.calculateDuration().longValue()));
     }
 
-    private static void calculateBestCrew(List<Crew> voyageCrew) {
-        Map<String, Integer> bestCrew = VoyageUtil.calculateBestCrew(voyageCrew);
+    private static void calculateBestCrew(List<Crew> voyageCrew){
+        Map<String,Integer> bestCrew = VoyageUtil.calculateBestCrew(voyageCrew);
         System.out.println(bestCrew);
     }
 }
