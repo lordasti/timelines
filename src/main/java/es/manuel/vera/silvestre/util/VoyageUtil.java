@@ -5,7 +5,6 @@ import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 import static es.manuel.vera.silvestre.modelo.Stats.*;
@@ -50,11 +49,11 @@ public class VoyageUtil{
             new BonusStats(Stats.MEDICINE, Stats.ENGINEERING),
             new BonusStats(Stats.MEDICINE, Stats.SECURITY),
             new BonusStats(Stats.MEDICINE, Stats.SCIENCE)
-                                                                      );
+        );
 
         allPossibleCombinations.forEach(bonusStats -> {
             Voyage voyage = calculateVoyage(bonusStats, 2500, roster);
-            List<Crew> selectedCrew = voyage.getVoyageSlots().stream().map(Slot::getCrew).collect(Collectors.toList());
+            List<Crew> selectedCrew = voyage.getSlots().stream().map(Slot::getCrew).collect(Collectors.toList());
             selectedCrew.forEach(crew -> {
                 if(bestCrew.containsKey(crew.getName())){
                     bestCrew.put(crew.getName(), bestCrew.get(crew.getName()) + 1);
@@ -75,14 +74,14 @@ public class VoyageUtil{
     public static Voyage calculateVoyage(BonusStats bonusStats, int antimatter, List<Crew> roster){
         Voyage voyage = new Voyage(bonusStats, antimatter);
 
-        List<Slot> voyageSlots = voyage.getVoyageSlots();
+        List<Slot> voyageSlots = voyage.getSlots();
         Set<Crew> selectedCrew = new HashSet<>();
-        List<Crew> commandCandidates = getBestCandidates(roster, COMMAND, Crew::getCommand);
-        List<Crew> diplomacyCandidates = getBestCandidates(roster, DIPLOMACY, Crew::getDiplomacy);
-        List<Crew> engineeringCandidates = getBestCandidates(roster, ENGINEERING, Crew::getEngineering);
-        List<Crew> securityCandidates = getBestCandidates(roster, SECURITY, Crew::getSecurity);
-        List<Crew> scienceCandidates = getBestCandidates(roster, SCIENCE, Crew::getScience);
-        List<Crew> medicineCandidates = getBestCandidates(roster, MEDICINE, Crew::getMedicine);
+        List<Crew> commandCandidates = getBestCandidates(roster, COMMAND);
+        List<Crew> diplomacyCandidates = getBestCandidates(roster, DIPLOMACY);
+        List<Crew> engineeringCandidates = getBestCandidates(roster, ENGINEERING);
+        List<Crew> securityCandidates = getBestCandidates(roster, SECURITY);
+        List<Crew> scienceCandidates = getBestCandidates(roster, SCIENCE);
+        List<Crew> medicineCandidates = getBestCandidates(roster, MEDICINE);
 
         voyageSlots.forEach(slot -> {
             StopWatch watch = StopWatch.createStarted();
@@ -114,15 +113,6 @@ public class VoyageUtil{
         return voyage;
     }
 
-    private static List<Crew> getBestCandidates(
-        List<Crew> roster, Stats stat, ToIntFunction<Crew> getter){
-        return roster.stream()
-                     .filter(crew -> crew.hasProficiency(stat))
-                     .sorted((o1, o2) -> Integer.compare(getter.applyAsInt(o2), getter.applyAsInt(o1)))
-                     .limit(15)
-                     .collect(Collectors.toList());
-    }
-
     private static List<Crew> getBestCandidates(Stats stat, Set<Crew> selected, List<Crew> commandCandidates,
         List<Crew> diplomacyCandidates, List<Crew> engineeringCandidates, List<Crew> securityCandidates,
         List<Crew> scienceCandidates, List<Crew> medicineCandidates){
@@ -146,5 +136,12 @@ public class VoyageUtil{
 
     private static List<Crew> removeSelected(List<Crew> candidates, Set<Crew> selected){
         return candidates.stream().filter(candidate -> !selected.contains(candidate)).collect(Collectors.toList());
+    }
+
+    private static List<Crew> getBestCandidates(List<Crew> roster, Stats stat){
+        return roster.stream()
+            .sorted((o1, o2) -> Integer.compare(o2.getSkill(stat).getAvgTotal(), o1.getSkill(stat).getAvgTotal()))
+            .limit(15)
+            .collect(Collectors.toList());
     }
 }

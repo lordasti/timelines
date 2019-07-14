@@ -19,30 +19,35 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class App{
-    private static final String SPREADSHEET_ID = "1JaKMfwTENBJNb5XgnQ4T8A2zWk3azP5lcOkn-2i5F34";
+    private static final String SPREADSHEET_ID = "1CEwYl9Xo-u6rz7xaXyivKjCqWmOOhqhlS_PsksoYP4A";
 
     public static void main(String[] args) throws IOException, GeneralSecurityException{
         StopWatch watch = StopWatch.createStarted();
         Sheets sheetsService = SheetsServiceUtil.getSheetsService();
 
-        ValueRange response = sheetsService.spreadsheets().values().get(SPREADSHEET_ID, "'[Voyage] Stats'").execute();
+        ValueRange response = sheetsService.spreadsheets().values().get(SPREADSHEET_ID, "'Stats'").execute();
 
         List<List<Object>> rawCrew = response.getValues();
 
         //remove headers
         rawCrew.remove(0);
         rawCrew.remove(0);
+        rawCrew.remove(0);
+        rawCrew.remove(0);
 
-        List<Crew> roster = rawCrew.stream().map(Crew::new).filter(Crew::isValid).collect(Collectors.toList());
+        //List<Crew> allTimelinesCrew = rawCrew.stream().map(Crew::new).collect(Collectors.toList());
+        //List<Crew> allMyCrew = rawCrew.stream().map(Crew::new).filter(Crew::hasStars).collect(Collectors.toList());
+        List<Crew> allActiveCrew = rawCrew.stream().map(Crew::new).filter(Crew::isActive).collect(Collectors.toList());
 
-        calculateAVoyage(roster);
-        //calculateBestCrew(roster);
+        calculateAVoyage(allActiveCrew);
+        //calculateBestCrew(allMyCrew);
+        
         watch.stop();
         System.out.println("Total time: " + watch.getTime(TimeUnit.SECONDS));
     }
 
     private static void calculateAVoyage(List<Crew> roster){
-        Voyage voyage = VoyageUtil.calculateVoyage(new BonusStats(Stats.SCIENCE, Stats.DIPLOMACY), 2500, roster);
+        Voyage voyage = VoyageUtil.calculateVoyage(new BonusStats(Stats.SECURITY, Stats.COMMAND), 2550, roster);
         System.out.println(voyage);
         System.out.println("Command:" + voyage.getCommand());
         System.out.println("Diplomacy:" + voyage.getDiplomacy());
