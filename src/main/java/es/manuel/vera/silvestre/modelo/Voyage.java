@@ -10,32 +10,46 @@ import java.util.stream.Collectors;
 
 @Data
 public class Voyage{
-    private final List<Slot> slots;
+    private final Slot firstOfficer;
+    private final Slot helmOfficer;
+
+    private final Slot diplomat;
+    private final Slot communicationsOfficer;
+
+    private final Slot chiefSecurityOfficer;
+    private final Slot tacticalOfficer;
+
+    private final Slot chiefEngineer;
+    private final Slot engineer;
+
+    private final Slot chiefScienceOfficer;
+    private final Slot deputyScienceOfficer;
+
+    private final Slot chiefMedicalOfficer;
+    private final Slot shipCounselor;
+
     private final BonusStats bonusStats;
     private final int antimatter;
 
     public Voyage(BonusStats bonusStats, int antimatter){
-        Slot firstOfficer = new Slot("First Officer", Stats.COMMAND);
-        Slot helmOfficer = new Slot("Helm Officer", Stats.COMMAND);
+        firstOfficer = new Slot("First Officer", Stats.COMMAND);
+        helmOfficer = new Slot("Helm Officer", Stats.COMMAND);
 
-        Slot diplomat = new Slot("Diplomat", Stats.DIPLOMACY);
-        Slot communicationsOfficer = new Slot("Communications Officer", Stats.DIPLOMACY);
+        diplomat = new Slot("Diplomat", Stats.DIPLOMACY);
+        communicationsOfficer = new Slot("Communications Officer", Stats.DIPLOMACY);
 
-        Slot chiefSecurityOfficer = new Slot("Chief Security", Stats.SECURITY);
-        Slot tacticalOfficer = new Slot("Tactical Officer", Stats.SECURITY);
+        chiefSecurityOfficer = new Slot("Chief Security", Stats.SECURITY);
+        tacticalOfficer = new Slot("Tactical Officer", Stats.SECURITY);
 
-        Slot chiefEngineer = new Slot("Chief Engineer", Stats.ENGINEERING);
-        Slot engineer = new Slot("Engineer", Stats.ENGINEERING);
+        chiefEngineer = new Slot("Chief Engineer", Stats.ENGINEERING);
+        engineer = new Slot("Engineer", Stats.ENGINEERING);
 
-        Slot chiefScienceOfficer = new Slot("Chief Science Officer", Stats.SCIENCE);
-        Slot deputyScienceOfficer = new Slot("Deputy Science Officer", Stats.SCIENCE);
+        chiefScienceOfficer = new Slot("Chief Science Officer", Stats.SCIENCE);
+        deputyScienceOfficer = new Slot("Deputy Science Officer", Stats.SCIENCE);
 
-        Slot chiefMedicalOfficer = new Slot("Chief Medical Officer", Stats.MEDICINE);
-        Slot shipCounselor = new Slot("Ship Counselor", Stats.MEDICINE);
+        chiefMedicalOfficer = new Slot("Chief Medical Officer", Stats.MEDICINE);
+        shipCounselor = new Slot("Ship Counselor", Stats.MEDICINE);
 
-        slots = Arrays
-            .asList(firstOfficer, helmOfficer, diplomat, communicationsOfficer, chiefSecurityOfficer, tacticalOfficer,
-                chiefEngineer, engineer, chiefScienceOfficer, deputyScienceOfficer, chiefMedicalOfficer, shipCounselor);
         this.bonusStats = bonusStats;
         this.antimatter = antimatter;
     }
@@ -45,8 +59,15 @@ public class Voyage{
     }
 
     private int getSkillScore(Stats stat){
-        return slots.stream().filter(Slot::isNotEmpty).map(Slot::getCrew).map(crew -> crew.getSkill(stat))
+        return getSlots().stream().filter(Slot::isNotEmpty).map(Slot::getCrew).map(crew -> crew.getSkill(stat))
             .mapToInt(Skill::getAvgTotal).sum();
+    }
+
+    public List<Slot> getSlots(){
+        return Arrays
+            .asList(firstOfficer, helmOfficer, diplomat, communicationsOfficer,
+                chiefSecurityOfficer, tacticalOfficer, chiefEngineer, engineer,
+                chiefScienceOfficer, deputyScienceOfficer, chiefMedicalOfficer, shipCounselor);
     }
 
     public int getDiplomacy(){
@@ -71,13 +92,12 @@ public class Voyage{
 
     @Override
     public String toString(){
-        return slots.toString();
+        return getSlots().toString();
     }
 
     public Double calculateDuration(){
-
         //(increase for accuracy, decrease for speed!)
-        int numSims = 5000;
+        int numSims = 500;
         List<Skill> skills = Arrays.asList(getPrimary(), getSecondary(), getOthers().get(0),
             getOthers().get(1), getOthers().get(2), getOthers().get(3));
         List<Integer> results = new ArrayList<>(numSims);
@@ -161,7 +181,7 @@ public class Voyage{
     }
 
     private Skill getTotalSkillScores(Stats stat){
-        return slots.stream().filter(Slot::isNotEmpty).map(Slot::getCrew).map(crew -> crew.getSkill(stat))
+        return getSlots().stream().filter(Slot::isNotEmpty).map(Slot::getCrew).map(crew -> crew.getSkill(stat))
             .reduce(Skill::sum).orElse(null);
     }
 

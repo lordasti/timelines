@@ -1,10 +1,8 @@
 package es.manuel.vera.silvestre.util;
 
 import es.manuel.vera.silvestre.modelo.*;
-import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static es.manuel.vera.silvestre.modelo.Stats.*;
@@ -13,43 +11,18 @@ public class VoyageUtil{
 
     public static Map<String,Integer> calculateBestCrew(List<Crew> roster){
         Map<String,Integer> bestCrew = new LinkedHashMap<>();
-        List<BonusStats> allPossibleCombinations = Arrays.asList(
-            new BonusStats(COMMAND, Stats.DIPLOMACY),
-            new BonusStats(COMMAND, Stats.ENGINEERING),
-            new BonusStats(COMMAND, Stats.SECURITY),
-            new BonusStats(COMMAND, Stats.SCIENCE),
-            new BonusStats(COMMAND, Stats.MEDICINE),
+        List<BonusStats> allPossibleCombinations = new ArrayList<>();
 
-            new BonusStats(Stats.DIPLOMACY, COMMAND),
-            new BonusStats(Stats.DIPLOMACY, Stats.ENGINEERING),
-            new BonusStats(Stats.DIPLOMACY, Stats.SECURITY),
-            new BonusStats(Stats.DIPLOMACY, Stats.SCIENCE),
-            new BonusStats(Stats.DIPLOMACY, Stats.MEDICINE),
+        Stats[] stats = Stats.values();
+        for(int primary = 0; primary < 6; primary++){
+            for(int secondary = 0; secondary < 6; secondary++){
+                if(primary == secondary){
+                    continue;
+                }
 
-            new BonusStats(Stats.ENGINEERING, COMMAND),
-            new BonusStats(Stats.ENGINEERING, Stats.DIPLOMACY),
-            new BonusStats(Stats.ENGINEERING, Stats.SECURITY),
-            new BonusStats(Stats.ENGINEERING, Stats.SCIENCE),
-            new BonusStats(Stats.ENGINEERING, Stats.MEDICINE),
-
-            new BonusStats(Stats.SECURITY, COMMAND),
-            new BonusStats(Stats.SECURITY, Stats.DIPLOMACY),
-            new BonusStats(Stats.SECURITY, Stats.ENGINEERING),
-            new BonusStats(Stats.SECURITY, Stats.SCIENCE),
-            new BonusStats(Stats.SECURITY, Stats.MEDICINE),
-
-            new BonusStats(Stats.SCIENCE, COMMAND),
-            new BonusStats(Stats.SCIENCE, Stats.DIPLOMACY),
-            new BonusStats(Stats.SCIENCE, Stats.ENGINEERING),
-            new BonusStats(Stats.SCIENCE, Stats.SECURITY),
-            new BonusStats(Stats.SCIENCE, Stats.MEDICINE),
-
-            new BonusStats(Stats.MEDICINE, COMMAND),
-            new BonusStats(Stats.MEDICINE, Stats.DIPLOMACY),
-            new BonusStats(Stats.MEDICINE, Stats.ENGINEERING),
-            new BonusStats(Stats.MEDICINE, Stats.SECURITY),
-            new BonusStats(Stats.MEDICINE, Stats.SCIENCE)
-        );
+                allPossibleCombinations.add(new BonusStats(stats[primary], stats[secondary]));
+            }
+        }
 
         allPossibleCombinations.forEach(bonusStats -> {
             Voyage voyage = calculateVoyage(bonusStats, 2500, roster);
@@ -72,10 +45,8 @@ public class VoyageUtil{
     }
 
     public static Voyage calculateVoyage(BonusStats bonusStats, int antimatter, List<Crew> roster){
-        Voyage voyage = new Voyage(bonusStats, antimatter);
-
-        List<Slot> voyageSlots = voyage.getSlots();
-        Set<Crew> selectedCrew = new HashSet<>();
+        Voyage bestVoyage = null;
+        Double bestVoyageTime = 0D;
         List<Crew> commandCandidates = getBestCandidates(roster, COMMAND);
         List<Crew> diplomacyCandidates = getBestCandidates(roster, DIPLOMACY);
         List<Crew> engineeringCandidates = getBestCandidates(roster, ENGINEERING);
@@ -83,34 +54,70 @@ public class VoyageUtil{
         List<Crew> scienceCandidates = getBestCandidates(roster, SCIENCE);
         List<Crew> medicineCandidates = getBestCandidates(roster, MEDICINE);
 
-        voyageSlots.forEach(slot -> {
-            StopWatch watch = StopWatch.createStarted();
-            double best = 0;
+        for(int i = 0; i < 50; i++){
+            //StopWatch watch = StopWatch.createStarted();
+            Voyage actual = new Voyage(bonusStats, antimatter);
+            List<Slot> voyageSlots = actual.getSlots();
+            Set<Crew> selectedCrew = new HashSet<>();
+            Collections.shuffle(voyageSlots);
 
-            List<Crew> candidates =
-                getBestCandidates(slot.getStat(), selectedCrew, commandCandidates, diplomacyCandidates,
-                    engineeringCandidates, securityCandidates, scienceCandidates, medicineCandidates);
+            voyageSlots.forEach(slot -> {
+                //StopWatch watch = StopWatch.createStarted();
+                double bestTime = 0;
 
-            for(Crew candidate: candidates){
-                Crew oldCrew = slot.getCrew();
-                slot.setCrew(candidate);
-                double newTry = voyage.calculateDuration();
-                if(newTry > best){
-                    best = newTry;
+                List<Crew> candidates =
+                    getBestCandidates(slot.getStat(), selectedCrew, commandCandidates, diplomacyCandidates,
+                        engineeringCandidates, securityCandidates, scienceCandidates, medicineCandidates);
+
+                for(Crew candidate: candidates){
+                    Crew oldCrew = slot.getCrew();
                     slot.setCrew(candidate);
-                    selectedCrew.add(candidate);
-                    if(oldCrew != null){
-                        selectedCrew.remove(oldCrew);
+                    double newTry = actual.calculateDuration();
+                    if(newTry > bestTime){
+                        bestTime = newTry;
+                        slot.setCrew(candidate);
+                        selectedCrew.add(candidate);
+                        if(oldCrew != null){
+                            selectedCrew.remove(oldCrew);
+                        }
+                    }else{
+                        slot.setCrew(oldCrew);
                     }
-                }else{
-                    slot.setCrew(oldCrew);
                 }
-            }
-            watch.stop();
-            System.out.println("Time for slot " + slot + " took: " + watch.getTime(TimeUnit.SECONDS));
-        });
+                //watch.stop();
+                //System.out.println("Slot " + slot + " took: " + watch.getTime(TimeUnit.SECONDS));
+            });
 
-        return voyage;
+            Double actualTime = actual.calculateDuration();
+            if(actualTime > bestVoyageTime){
+                /*System.out.println("Found BETTER estimation: old(" +
+                    LocalTime.ofSecondOfDay(bestVoyageTime.longValue()) + ") < new(" +
+                    LocalTime.ofSecondOfDay(actualTime.longValue()) + ")");*
+                if(actual.equals(bestVoyage)){
+                    System.out.println("BUT CREW WAS IDENTICAL");
+                }else{
+                    System.out.println("Best crew: " + bestVoyage);
+                    System.out.println("Actual crew: " + actual);
+                }*/
+                bestVoyage = actual;
+                bestVoyageTime = actualTime;
+            }else{
+                /*System.out.println("Found WORST estimation: new(" +
+                    LocalTime.ofSecondOfDay(actualTime.longValue()) + ") < old(" +
+                    LocalTime.ofSecondOfDay(bestVoyageTime.longValue()) + ")");
+                if(actual.equals(bestVoyage)){
+                    System.out.println("BUT CREW WAS IDENTICAL");
+                }else{
+                    System.out.println("Best crew: " + bestVoyage);
+                    System.out.println("Actual crew: " + actual);
+                }*/
+            }
+
+            //watch.stop();
+            //System.out.println("Iteration " + i + " took: " + watch.getTime(TimeUnit.SECONDS));
+        }
+
+        return bestVoyage;
     }
 
     private static List<Crew> getBestCandidates(Stats stat, Set<Crew> selected, List<Crew> commandCandidates,
