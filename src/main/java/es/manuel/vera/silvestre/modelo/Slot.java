@@ -1,18 +1,17 @@
 package es.manuel.vera.silvestre.modelo;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class Slot{
-    private final String name;
+@Builder(toBuilder = true)
+public class Slot implements Comparable<Slot>{
+    private final int index;
     private final Stats stat;
-    private Crew crew;
+    private final Crew crew;
 
-    public boolean isNotEmpty(){
-        return !isEmpty();
-    }
-
-    public boolean isEmpty(){
-        return crew == null;
+    @Override
+    public int compareTo(Slot o){
+        return Integer.compare(index, o.index);
     }
 }

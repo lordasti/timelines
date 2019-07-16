@@ -17,6 +17,6 @@ public class SheetUtil{
     }
 
     public static boolean readBoolean(List<Object> raw, int pos){
-        return raw.size() > pos ? BooleanUtils.toBoolean((String) raw.get(pos)) : false;
+        return raw.size() > pos && BooleanUtils.toBoolean((String) raw.get(pos));
     }
 }

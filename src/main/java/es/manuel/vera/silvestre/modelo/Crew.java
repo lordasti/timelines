@@ -6,17 +6,18 @@ import lombok.Data;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Data
 @AllArgsConstructor
 public class Crew{
+    private final int id;
     private final String name;
     private final boolean active;
     private final int stars;
     private final List<Skill> skills;
 
-    public Crew(List<Object> raw){
+    public Crew(int id, List<Object> raw){
+        this.id = id;
         Skill command = new Skill(Stats.COMMAND, raw, 60);
         Skill diplomacy = new Skill(Stats.DIPLOMACY, raw, 67);
         Skill engineering = new Skill(Stats.ENGINEERING, raw, 74);
@@ -35,26 +36,17 @@ public class Crew{
     }
 
     public Skill getSkill(Stats stat){
-        return getSkillStream(stat).findAny().orElse(null);
-    }
-
-    private Stream<Skill> getSkillStream(Stats stat){
-        return skills.stream()
-            .filter(skill -> stat == skill.getStat());
+        return skills.get(stat.getIndex());
     }
 
     @Override
     public int hashCode(){
-        return name.hashCode();
+        return id;
     }
 
     @Override
     public boolean equals(Object other){
-        if(other instanceof Crew){
-            return name.equals(((Crew) other).name);
-        }
-
-        return false;
+        return other instanceof Crew && id == ((Crew) other).id;
     }
 
     @Override

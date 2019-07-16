@@ -17,8 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class App{
+    public static final BonusStats BONUS_STATS = new BonusStats(Stats.SECURITY, Stats.ENGINEERING);
+    public static final int ANTIMATTER = 2650;
+    public static final int NUM_SIMS = 1;
+    public static final int BEST_CREW_LIMIT = 100;
+    public static final int MODE = 0;
+
     private static final String SPREADSHEET_ID = "1CEwYl9Xo-u6rz7xaXyivKjCqWmOOhqhlS_PsksoYP4A";
 
     public static void main(String[] args) throws IOException, GeneralSecurityException{
@@ -26,10 +33,13 @@ public class App{
 
         List<List<Object>> rawCrew = getRoster();
 
-        //List<Crew> allTimelinesCrew = rawCrew.stream().map(Crew::new).collect(Collectors.toList());
-        List<Crew> allMyCrew = rawCrew.stream().map(Crew::new).filter(Crew::hasStars).collect(Collectors.toList());
-        //List<Crew> allActiveCrew = rawCrew.stream().map(Crew::new).filter(Crew::isActive).collect(Collectors.toList
-        // ());
+        //List<Crew> allTimelinesCrew = awCrew.size()).mapToObj(id -> new Crew(id, rawCrew.get(id))).collect
+        // (Collectors.toList());
+        List<Crew> allMyCrew =
+            IntStream.range(0, rawCrew.size()).mapToObj(id -> new Crew(id, rawCrew.get(id))).filter(Crew::hasStars)
+                .collect(Collectors.toList());
+        //List<Crew> allActiveCrew = awCrew.size()).mapToObj(id -> new Crew(id, rawCrew.get(id))).filter
+        // (Crew::isActive).collect(Collectors.toList ());
 
         calculateAVoyage(allMyCrew);
         //calculateBestCrew(allMyCrew);
@@ -55,7 +65,7 @@ public class App{
     }
 
     private static void calculateAVoyage(List<Crew> roster){
-        Voyage voyage = VoyageUtil.calculateVoyage(new BonusStats(Stats.SECURITY, Stats.COMMAND), 2550, roster);
+        Voyage voyage = VoyageUtil.calculateVoyage(roster);
         System.out.println(voyage);
         System.out.println("Command:" + voyage.getCommand());
         System.out.println("Diplomacy:" + voyage.getDiplomacy());
@@ -63,7 +73,7 @@ public class App{
         System.out.println("Engineering:" + voyage.getEngineering());
         System.out.println("Science:" + voyage.getScience());
         System.out.println("Medicine:" + voyage.getMedicine());
-        System.out.println("Estimate:" + LocalTime.ofSecondOfDay(voyage.calculateDuration().longValue()));
+        System.out.println("Estimate:" + LocalTime.ofSecondOfDay(voyage.getVoyageEstimate().longValue()));
     }
 
     private static void calculateBestCrew(List<Crew> voyageCrew){
