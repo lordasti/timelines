@@ -3,6 +3,7 @@ package es.manuel.vera.silvestre.util;
 import es.manuel.vera.silvestre.App;
 import es.manuel.vera.silvestre.modelo.*;
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -11,6 +12,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class VoyageUtil{
+
+    private static final Logger LOGGER = Logger.getLogger(VoyageUtil.class);
 
     public static Map<String,Integer> calculateBestCrew(List<Crew> roster){
         Map<String,Integer> bestCrew = new LinkedHashMap<>();
@@ -41,7 +44,7 @@ public class VoyageUtil{
             });
 
             watch.stop();
-            System.out.println(bonusStats + " took " + watch.getTime(TimeUnit.SECONDS) + " s");
+            LOGGER.info(bonusStats + " took " + watch.getTime(TimeUnit.SECONDS) + " s");
         });
 
         Map<String,Integer> rank = bestCrew
@@ -55,36 +58,36 @@ public class VoyageUtil{
     }
 
     public static Voyage calculateVoyage(BonusStats bonusStats, List<Crew> roster){
-        //StopWatch watch = StopWatch.createStarted();
+        StopWatch watch = StopWatch.createStarted();
 
         List<List<Crew>> bestCandidates = getBestCandidates(roster);
         List<List<Stats>> permutations = getPermutations();
         Voyage result = calculateBestVoyage(bonusStats, bestCandidates, permutations);
 
-        //watch.stop();
-        //System.out.println("calculateVoyage took " + watch.getTime(TimeUnit.SECONDS));
+        watch.stop();
+        LOGGER.debug("calculateVoyage took " + watch.getTime(TimeUnit.SECONDS) + " s");
 
         return result;
     }
 
     private static Voyage calculateBestVoyage(BonusStats bonusStats, List<List<Crew>> bestCandidates,
         List<List<Stats>> permutations){
-        //StopWatch watch = StopWatch.createStarted();
+        StopWatch watch = StopWatch.createStarted();
 
         Voyage bestVoyage = permutations.parallelStream()
             .map(permutation -> doPermutation(bonusStats, bestCandidates, permutation))
             .reduce((voyage1, voyage2) -> voyage2.getVoyageEstimate() > voyage1.getVoyageEstimate() ? voyage2 :
                 voyage1).orElseThrow(NoSuchElementException::new);
 
-        //watch.stop();
-        //System.out.println("calculateBestVoyage took " + watch.getTime(TimeUnit.SECONDS));
+        watch.stop();
+        LOGGER.debug("calculateBestVoyage took " + watch.getTime(TimeUnit.SECONDS) + " s");
 
         return bestVoyage;
     }
 
     private static Voyage doPermutation(BonusStats bonusStats, List<List<Crew>> bestCandidates,
         List<Stats> permutation){
-        //StopWatch watch = StopWatch.createStarted();
+        StopWatch watch = StopWatch.createStarted();
 
         Voyage best = Voyage.builder().slots(Collections.emptyList()).voyageEstimate(0D).build();
         for(int i = 0; i < permutation.size(); i++){
@@ -93,14 +96,14 @@ public class VoyageUtil{
             best = fillSlotForStat(stat, (stat.getIndex() * 2) + 1, best, bonusStats, bestCandidates, permutation);
         }
 
-        //watch.stop();
-        //System.out.println("Permutation " + permutation + " took: " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
+        watch.stop();
+        LOGGER.debug("Permutation " + permutation + " took: " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
         return best;
     }
 
     private static Voyage fillSlotForStat(Stats stat, int index, Voyage bestSoFar, BonusStats bonusStats,
         List<List<Crew>> bestCandidates, List<Stats> permutation){
-        //StopWatch watch = StopWatch.createStarted();
+        StopWatch watch = StopWatch.createStarted();
 
         Set<Crew> selectedCrew = bestSoFar.getSlots().stream().map(Slot::getCrew).collect(Collectors.toSet());
         List<Crew> candidates = getBestCandidates(stat, selectedCrew, bestCandidates);
@@ -120,10 +123,9 @@ public class VoyageUtil{
                     (voyage1, voyage2) -> voyage2.getVoyageEstimate() > voyage1.getVoyageEstimate() ? voyage2 : voyage1)
                 .orElseThrow(NoSuchElementException::new);
 
-        //watch.stop();
-        //System.out.println(
-        //    "Fill Slot[" + index + "] from permutation " + permutation + " took: " +
-        //        watch.getTime(TimeUnit.MILLISECONDS));
+        watch.stop();
+        LOGGER.debug("Fill Slot[" + index + "] from permutation " + permutation + " took: " +
+            watch.getTime(TimeUnit.MILLISECONDS) + " ms");
 
         return bestResult;
     }
@@ -316,25 +318,25 @@ public class VoyageUtil{
     }
 
     private static List<List<Stats>> getPermutations(){
-        //StopWatch watch = StopWatch.createStarted();
+        StopWatch watch = StopWatch.createStarted();
 
         List<List<Stats>> permutations = Permutation.of(Arrays.asList(Stats.values()));
 
-        //watch.stop();
-        //System.out.println("Permutations init took " + watch.getTime(TimeUnit.MILLISECONDS));
+        watch.stop();
+        LOGGER.debug("Permutations init took " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
 
         return permutations;
     }
 
     private static List<List<Crew>> getBestCandidates(List<Crew> roster){
-        //StopWatch watch = StopWatch.createStarted();
+        StopWatch watch = StopWatch.createStarted();
 
         List<List<Crew>> bestCandidates =
             Arrays.stream(Stats.values()).map(stat -> getBestCandidates(roster, stat))
                 .collect(Collectors.toList());
 
-        //watch.stop();
-        //System.out.println("Candidates init took " + watch.getTime(TimeUnit.MILLISECONDS));
+        watch.stop();
+        LOGGER.debug("Candidates init took " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
 
         return bestCandidates;
     }

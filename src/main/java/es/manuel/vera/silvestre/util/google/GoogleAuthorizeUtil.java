@@ -11,10 +11,9 @@ import java.util.Collections;
 public class GoogleAuthorizeUtil{
 
     public static Credential authorizeWithServiceCredential() throws IOException{
-
         InputStream is = GoogleAuthorizeUtil.class
             .getResourceAsStream("/sheets-service-account.json");
         return GoogleCredential.fromStream(is)
-                               .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
+            .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
     }
 }

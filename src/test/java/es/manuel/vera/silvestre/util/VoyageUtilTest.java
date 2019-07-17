@@ -2,6 +2,7 @@ package es.manuel.vera.silvestre.util;
 
 import es.manuel.vera.silvestre.modelo.Skill;
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import java.time.LocalTime;
@@ -12,6 +13,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class VoyageUtilTest{
+
+    private static final Logger LOGGER = Logger.getLogger(VoyageUtilTest.class);
 
     @Test
     public void shouldDoDeterministicSimulation(){
@@ -44,11 +47,10 @@ public class VoyageUtilTest{
         StopWatch watch = StopWatch.createStarted();
         int result = VoyageUtil.doDeterministicSimulation(Arrays.asList(cmd, dip, eng, sec, sci, med));
         watch.stop();
-        System.out.println("Estimate:" + LocalTime.ofSecondOfDay(result));
+        LOGGER.debug("Estimate:" + LocalTime.ofSecondOfDay(result));
 
-        System.out
-            .println("numSims[" + numSims + "] = " + result + ". Took: " +
-                watch.getTime(TimeUnit.MILLISECONDS) + " ms.");
+        LOGGER.info("numSims[" + numSims + "] = " + result + ". Took: " +
+            watch.getTime(TimeUnit.MILLISECONDS) + " ms.");
     }
 
     @Test
@@ -95,8 +97,7 @@ public class VoyageUtilTest{
         Double result = VoyageUtil.doNumSim(Arrays.asList(cmd, dip, eng, sec, sci, med), numSims);
         watch.stop();
 
-        System.out
-            .println("numSims[" + numSims + "] = " + result + ". Took: " +
-                watch.getTime(TimeUnit.MILLISECONDS) + " ms.");
+        LOGGER.info("numSims[" + numSims + "] = " + result + ". Took: " +
+            watch.getTime(TimeUnit.MILLISECONDS) + " ms.");
     }
 }

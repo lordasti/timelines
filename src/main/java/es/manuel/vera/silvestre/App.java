@@ -9,6 +9,7 @@ import es.manuel.vera.silvestre.modelo.Voyage;
 import es.manuel.vera.silvestre.util.VoyageUtil;
 import es.manuel.vera.silvestre.util.google.SheetsServiceUtil;
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -20,12 +21,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class App{
-    public static final BonusStats BONUS_STATS = new BonusStats(Stats.SECURITY, Stats.ENGINEERING);
+    public static final BonusStats BONUS_STATS = new BonusStats(Stats.SECURITY, Stats.MEDICINE);
     public static final int ANTIMATTER = 2650;
     public static final int NUM_SIMS = 100;
     public static final int BEST_CREW_LIMIT = 100;
     public static final int MODE = 1; //0 Random, 1. Deterministic
-
+    private static final Logger LOGGER = Logger.getLogger(App.class);
     private static final String SPREADSHEET_ID = "1CEwYl9Xo-u6rz7xaXyivKjCqWmOOhqhlS_PsksoYP4A";
 
     public static void main(String[] args) throws IOException, GeneralSecurityException{
@@ -41,11 +42,11 @@ public class App{
         //List<Crew> allActiveCrew = awCrew.size()).mapToObj(id -> new Crew(id, rawCrew.get(id))).filter
         // (Crew::isActive).collect(Collectors.toList ());
 
-        //calculateAVoyage(allMyCrew);
-        calculateBestCrew(allMyCrew);
+        calculateAVoyage(allMyCrew);
+        //calculateBestCrew(allMyCrew);
 
         watch.stop();
-        System.out.println("Total time: " + watch.getTime(TimeUnit.SECONDS));
+        LOGGER.info("Total time: " + watch.getTime(TimeUnit.SECONDS) + " s");
     }
 
     private static List<List<Object>> getRoster() throws IOException, GeneralSecurityException{
@@ -64,20 +65,20 @@ public class App{
         return rawCrew;
     }
 
-    private static void calculateBestCrew(List<Crew> voyageCrew){
-        Map<String,Integer> bestCrew = VoyageUtil.calculateBestCrew(voyageCrew);
-        System.out.println(bestCrew);
-    }
-
     private static void calculateAVoyage(List<Crew> roster){
         Voyage voyage = VoyageUtil.calculateVoyage(roster);
-        System.out.println(voyage);
-        System.out.println("Command:" + voyage.getCommand());
-        System.out.println("Diplomacy:" + voyage.getDiplomacy());
-        System.out.println("Security:" + voyage.getSecurity());
-        System.out.println("Engineering:" + voyage.getEngineering());
-        System.out.println("Science:" + voyage.getScience());
-        System.out.println("Medicine:" + voyage.getMedicine());
-        System.out.println("Estimate:" + LocalTime.ofSecondOfDay(voyage.getVoyageEstimate().longValue()));
+        LOGGER.info(voyage);
+        LOGGER.info("Command:" + voyage.getCommand());
+        LOGGER.info("Diplomacy:" + voyage.getDiplomacy());
+        LOGGER.info("Security:" + voyage.getSecurity());
+        LOGGER.info("Engineering:" + voyage.getEngineering());
+        LOGGER.info("Science:" + voyage.getScience());
+        LOGGER.info("Medicine:" + voyage.getMedicine());
+        LOGGER.info("Estimate:" + LocalTime.ofSecondOfDay(voyage.getVoyageEstimate().longValue()));
+    }
+
+    private static void calculateBestCrew(List<Crew> voyageCrew){
+        Map<String,Integer> bestCrew = VoyageUtil.calculateBestCrew(voyageCrew);
+        LOGGER.info(bestCrew);
     }
 }
