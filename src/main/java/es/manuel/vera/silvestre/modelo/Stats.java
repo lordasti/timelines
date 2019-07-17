@@ -20,10 +20,6 @@ public enum Stats{
         return index;
     }
 
-    public String getName(){
-        return name;
-    }
-
     @Override
     public String toString(){
         return name;

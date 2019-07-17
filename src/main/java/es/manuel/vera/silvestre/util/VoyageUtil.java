@@ -28,6 +28,8 @@ public class VoyageUtil{
         }
 
         allPossibleCombinations.forEach(bonusStats -> {
+            StopWatch watch = StopWatch.createStarted();
+
             Voyage voyage = calculateVoyage(bonusStats, roster);
             List<Crew> selectedCrew = voyage.getSlots().stream().map(Slot::getCrew).collect(Collectors.toList());
             selectedCrew.forEach(crew -> {
@@ -37,14 +39,19 @@ public class VoyageUtil{
                     bestCrew.put(crew.getName(), 1);
                 }
             });
+
+            watch.stop();
+            System.out.println(bonusStats + " took " + watch.getTime(TimeUnit.SECONDS) + " s");
         });
 
-        return bestCrew
+        Map<String,Integer> rank = bestCrew
             .entrySet()
             .stream()
             .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
                 LinkedHashMap::new));
+
+        return rank;
     }
 
     public static Voyage calculateVoyage(BonusStats bonusStats, List<Crew> roster){
@@ -77,7 +84,7 @@ public class VoyageUtil{
 
     private static Voyage doPermutation(BonusStats bonusStats, List<List<Crew>> bestCandidates,
         List<Stats> permutation){
-        StopWatch watch = StopWatch.createStarted();
+        //StopWatch watch = StopWatch.createStarted();
 
         Voyage best = Voyage.builder().slots(Collections.emptyList()).voyageEstimate(0D).build();
         for(int i = 0; i < permutation.size(); i++){
@@ -86,8 +93,8 @@ public class VoyageUtil{
             best = fillSlotForStat(stat, (stat.getIndex() * 2) + 1, best, bonusStats, bestCandidates, permutation);
         }
 
-        watch.stop();
-        System.out.println("Permutation " + permutation + " took: " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
+        //watch.stop();
+        //System.out.println("Permutation " + permutation + " took: " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
         return best;
     }
 
@@ -143,21 +150,12 @@ public class VoyageUtil{
             return doNumSim(skills, App.NUM_SIMS);
         }
 
-        return doRanked(skills);
-    }
-
-    private static double doRanked(List<Skill> skills){
-        int total = skills.stream().mapToInt(Skill::getAvgTotal).sum();
-
-        return IntStream.range(0, skills.size()).mapToDouble(i -> {
-            double ideal = i == 0 ? total * 0.35D : i == 1 ? total * 0.35D : total * 0.1D;
-            double deviation = skills.get(i).getAvgTotal() / ideal;
-            return deviation > 0.8D && deviation < 1.2D ? skills.get(i).getAvgTotal() : 0D;
-        }).sum();
+        return doDeterministicSimulation(skills);
     }
 
     protected static double doNumSim(List<Skill> skills, Integer numSims){
-        return IntStream.range(0, numSims).parallel().map(i -> doSimulation(skills)).average().getAsDouble();
+        return IntStream.range(0, numSims).parallel().map(i -> doSimulation(skills)).average()
+            .getAsDouble();
     }
 
     private static int doSimulation(List<Skill> skills){
@@ -198,7 +196,7 @@ public class VoyageUtil{
                         }
                     }
                 }
-            }else if(tick % rewardTick != 0 && tick % hazardAsRewardTick != 0 && tick % ticksBetweenDilemmas != 0){
+            }else if(tick % rewardTick != 0 && tick % ticksBetweenDilemmas != 0){
                 am -= amPerActivity;
             }
         }
@@ -227,6 +225,77 @@ public class VoyageUtil{
         return min + Math.random() * (max - min);
     }
 
+    protected static int doDeterministicSimulation(List<Skill> skills){
+        int secondsPerTick = 20;
+        int hazardTick = 4;
+        int rewardTick = 7;
+        int hazardAsRewardTick = 28;
+        int amPerActivity = 1;
+        int ticksBetweenDilemmas = 360;
+        int hazSkillPerTick = 7;
+        int hazAmPass = 5;
+        int hazAmFail = 30;
+        int tick = 0;
+        int am = App.ANTIMATTER;
+
+        while(am > 0){
+            ++tick;
+
+            if(tick % hazardTick == 0 && tick % hazardAsRewardTick != 0 && tick % ticksBetweenDilemmas != 0){
+                Skill skill = pickDeterministicSkill(skills, tick);
+
+                int hazDiff = tick * hazSkillPerTick;
+                if(hazDiff < skill.getAvgTotal()){
+                    am += hazAmPass;
+                }else{
+                    am -= hazAmFail;
+                }
+            }else if(tick % rewardTick != 0 && tick % ticksBetweenDilemmas != 0){
+                am -= amPerActivity;
+            }
+        }
+
+        return tick * secondsPerTick;
+    }
+
+    private static Skill pickDeterministicSkill(List<Skill> skills, int tick){
+        int skillPickRoll = tick % 100;
+        int skillCycle = tick / 100;
+
+        int index;
+
+        if(skillCycle % 2 == 0){
+            if(skillPickRoll < 35){
+                index = 0;
+            }else if(skillPickRoll < 60){
+                index = 1;
+            }else if(skillPickRoll < 70){
+                index = 2;
+            }else if(skillPickRoll < 80){
+                index = 3;
+            }else if(skillPickRoll < 90){
+                index = 4;
+            }else{
+                index = 5;
+            }
+        }else{
+            if(skillPickRoll < 10){
+                index = 5;
+            }else if(skillPickRoll < 20){
+                index = 4;
+            }else if(skillPickRoll < 30){
+                index = 3;
+            }else if(skillPickRoll < 40){
+                index = 2;
+            }else if(skillPickRoll < 65){
+                index = 1;
+            }else{
+                index = 0;
+            }
+        }
+        return skills.get(index);
+    }
+
     private static Skill getPrimary(BonusStats bonusStats, List<Slot> slots){
         return getTotalSkillScores(bonusStats.getPrimary(), slots);
     }
@@ -247,25 +316,25 @@ public class VoyageUtil{
     }
 
     private static List<List<Stats>> getPermutations(){
-        StopWatch watch = StopWatch.createStarted();
+        //StopWatch watch = StopWatch.createStarted();
 
         List<List<Stats>> permutations = Permutation.of(Arrays.asList(Stats.values()));
 
-        watch.stop();
-        System.out.println("Permutations init took " + watch.getTime(TimeUnit.MILLISECONDS));
+        //watch.stop();
+        //System.out.println("Permutations init took " + watch.getTime(TimeUnit.MILLISECONDS));
 
         return permutations;
     }
 
     private static List<List<Crew>> getBestCandidates(List<Crew> roster){
-        StopWatch watch = StopWatch.createStarted();
+        //StopWatch watch = StopWatch.createStarted();
 
         List<List<Crew>> bestCandidates =
             Arrays.stream(Stats.values()).map(stat -> getBestCandidates(roster, stat))
                 .collect(Collectors.toList());
 
-        watch.stop();
-        System.out.println("Candidates init took " + watch.getTime(TimeUnit.MILLISECONDS));
+        //watch.stop();
+        //System.out.println("Candidates init took " + watch.getTime(TimeUnit.MILLISECONDS));
 
         return bestCandidates;
     }
