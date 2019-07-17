@@ -9,6 +9,6 @@ public class BonusStats{
 
     @Override
     public String toString(){
-        return "[" + primary + "," + secondary + "]";
+        return "[" + primary + ":" + secondary + "]";
     }
 }

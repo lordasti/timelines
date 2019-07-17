@@ -5,6 +5,7 @@ import es.manuel.vera.silvestre.modelo.*;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.log4j.Logger;
 
+import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +18,7 @@ public class VoyageUtil{
 
     public static Map<String,Integer> calculateBestCrew(List<Crew> roster){
         Map<String,Integer> bestCrew = new LinkedHashMap<>();
+        Map<BonusStats,LocalTime> voyages = new LinkedHashMap<>();
         List<BonusStats> allPossibleCombinations = new ArrayList<>();
 
         Stats[] stats = Stats.values();
@@ -34,6 +36,9 @@ public class VoyageUtil{
             StopWatch watch = StopWatch.createStarted();
 
             Voyage voyage = calculateVoyage(bonusStats, roster);
+
+            voyages.put(bonusStats, LocalTime.ofSecondOfDay(voyage.getVoyageEstimate().intValue()));
+
             List<Crew> selectedCrew = voyage.getSlots().stream().map(Slot::getCrew).collect(Collectors.toList());
             selectedCrew.forEach(crew -> {
                 if(bestCrew.containsKey(crew.getName())){
@@ -44,17 +49,26 @@ public class VoyageUtil{
             });
 
             watch.stop();
-            LOGGER.info(bonusStats + " took " + watch.getTime(TimeUnit.SECONDS) + " s");
+            LOGGER.info(bonusStats + " took " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
         });
 
-        Map<String,Integer> rank = bestCrew
+        Map<BonusStats,LocalTime> voyageRank = sortMapByValues(voyages,
+            Collections.reverseOrder(Map.Entry.comparingByValue()));
+        LOGGER.info(voyageRank);
+
+        Map<String,Integer> crewRank = sortMapByValues(bestCrew,
+            Collections.reverseOrder(Map.Entry.comparingByValue()));
+
+        return crewRank;
+    }
+
+    private static <K, V> Map<K,V> sortMapByValues(Map<K,V> unordered, Comparator<Map.Entry<K,V>> comparator){
+        return unordered
             .entrySet()
             .stream()
-            .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+            .sorted(comparator)
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
                 LinkedHashMap::new));
-
-        return rank;
     }
 
     public static Voyage calculateVoyage(BonusStats bonusStats, List<Crew> roster){

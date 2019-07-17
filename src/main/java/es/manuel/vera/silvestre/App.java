@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 
 public class App{
     public static final BonusStats BONUS_STATS = new BonusStats(Stats.SECURITY, Stats.MEDICINE);
-    public static final int ANTIMATTER = 2650;
+    public static final int ANTIMATTER = 2500;
     public static final int NUM_SIMS = 100;
     public static final int BEST_CREW_LIMIT = 100;
     public static final int MODE = 1; //0 Random, 1. Deterministic
@@ -42,8 +42,8 @@ public class App{
         //List<Crew> allActiveCrew = awCrew.size()).mapToObj(id -> new Crew(id, rawCrew.get(id))).filter
         // (Crew::isActive).collect(Collectors.toList ());
 
-        calculateAVoyage(allMyCrew);
-        //calculateBestCrew(allMyCrew);
+        //calculateAVoyage(allMyCrew);
+        calculateBestCrew(allMyCrew);
 
         watch.stop();
         LOGGER.info("Total time: " + watch.getTime(TimeUnit.SECONDS) + " s");
@@ -65,6 +65,11 @@ public class App{
         return rawCrew;
     }
 
+    private static void calculateBestCrew(List<Crew> voyageCrew){
+        Map<String,Integer> bestCrew = VoyageUtil.calculateBestCrew(voyageCrew);
+        LOGGER.info(bestCrew);
+    }
+
     private static void calculateAVoyage(List<Crew> roster){
         Voyage voyage = VoyageUtil.calculateVoyage(roster);
         LOGGER.info(voyage);
@@ -75,10 +80,5 @@ public class App{
         LOGGER.info("Science:" + voyage.getScience());
         LOGGER.info("Medicine:" + voyage.getMedicine());
         LOGGER.info("Estimate:" + LocalTime.ofSecondOfDay(voyage.getVoyageEstimate().longValue()));
-    }
-
-    private static void calculateBestCrew(List<Crew> voyageCrew){
-        Map<String,Integer> bestCrew = VoyageUtil.calculateBestCrew(voyageCrew);
-        LOGGER.info(bestCrew);
     }
 }
