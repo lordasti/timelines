@@ -45,10 +45,8 @@ public class VoyageUtil{
             Collections.reverseOrder(Map.Entry.comparingByValue()));
         LOGGER.info(voyageRank);
 
-        Map<String,Integer> crewRank = MapUtil.sortMapByValues(bestCrew,
+        return MapUtil.sortMapByValues(bestCrew,
             Collections.reverseOrder(Map.Entry.comparingByValue()));
-
-        return crewRank;
     }
 
     public static Voyage calculateVoyage(BonusStats bonusStats, List<Crew> roster){
@@ -142,8 +140,8 @@ public class VoyageUtil{
     }
 
     private static double doEstimation(List<Skill> skills){
-        if(App.MODE == 0){
-            return doNumSim(skills, App.NUM_SIMS);
+        if(App.VOYAGE_MODE == 0){
+            return doNumSim(skills, App.VOYAGE_NUM_SIMS);
         }
 
         return doDeterministicSimulation(skills);
@@ -165,7 +163,7 @@ public class VoyageUtil{
         int hazAmPass = 5;
         int hazAmFail = 30;
         int tick = 0;
-        int am = App.ANTIMATTER;
+        int am = App.VOYAGE_ANTIMATTER;
 
         while(tick < 10000 && am > 0){
             ++tick;
@@ -232,7 +230,7 @@ public class VoyageUtil{
         int hazAmPass = 5;
         int hazAmFail = 30;
         int tick = 0;
-        int am = App.ANTIMATTER;
+        int am = App.VOYAGE_ANTIMATTER;
 
         while(am > 0){
             ++tick;
@@ -343,6 +341,6 @@ public class VoyageUtil{
     }
 
     public static Voyage calculateVoyage(List<Crew> roster){
-        return calculateVoyage(App.BONUS_STATS, roster);
+        return calculateVoyage(App.VOYAGE_BONUS_STATS, roster);
     }
 }

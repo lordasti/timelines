@@ -15,6 +15,7 @@ public class Crew{
     private final boolean active;
     private final int stars;
     private final List<Skill> skills;
+    private final List<String> traits;
 
     public Crew(int id, List<Object> raw){
         this.id = id;
@@ -29,10 +30,17 @@ public class Crew{
         active = SheetUtil.readBoolean(raw, 49);
         stars = SheetUtil.readInt(raw, 50);
         skills = Arrays.asList(command, diplomacy, engineering, security, science, medicine);
+        traits = SheetUtil.readList(raw, 46);
     }
 
     public boolean hasStars(){
         return stars > 0;
+    }
+
+    public int getGauntletScore(BonusStats bonusStats, List<String> gauntletTraits){
+        double factor = 0.05D + gauntletTraits.stream().mapToDouble(trait -> traits.contains(trait) ? 0.2D : 0D).sum();
+        return (int) ((getSkill(bonusStats.getPrimary()).getAvg() +
+            getSkill(bonusStats.getSecondary()).getAvg()) * factor);
     }
 
     public Skill getSkill(Stats stat){

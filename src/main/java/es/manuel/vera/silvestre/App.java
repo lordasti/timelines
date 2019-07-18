@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -20,11 +20,20 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class App{
-    public static final BonusStats BONUS_STATS = new BonusStats(Stats.SECURITY, Stats.MEDICINE);
-    public static final int ANTIMATTER = 2500;
-    public static final int NUM_SIMS = 100;
+    //GENERAL
     public static final int BEST_CREW_LIMIT = 100;
-    public static final int MODE = 1; //0 Random, 1. Deterministic
+
+    //VOYAGE
+    public static final BonusStats VOYAGE_BONUS_STATS = new BonusStats(Stats.SECURITY, Stats.MEDICINE);
+    public static final int VOYAGE_ANTIMATTER = 2500;
+    public static final int VOYAGE_MODE = 1; //0 Random, 1. Deterministic
+    public static final int VOYAGE_NUM_SIMS = 100;//Random only
+
+    //GAUNTLET
+    public static final Stats GAUNTLET_STAT = Stats.SCIENCE;
+    public static final List<String> GAUNTLET_TRAITS = Arrays.asList("human", "starfleet", "federation");//lower case
+
+    //UTILITY
     private static final Logger LOGGER = Logger.getLogger(App.class);
     private static final String SPREADSHEET_ID = "1CEwYl9Xo-u6rz7xaXyivKjCqWmOOhqhlS_PsksoYP4A";
 
@@ -44,8 +53,8 @@ public class App{
         //calculateAVoyage(allMyCrew);
         //calculateBestCrew(allMyCrew);
 
-        //calculateAGauntlet(allMyCrew);
-        calculateBestGauntletCrew(allMyCrew);
+        calculateAGauntlet(allMyCrew);
+        //calculateBestGauntletCrew(allMyCrew);
 
         watch.stop();
         LOGGER.info("Total time: " + watch.getTime(TimeUnit.SECONDS) + " s");
@@ -67,14 +76,14 @@ public class App{
         return rawCrew;
     }
 
+    private static void calculateAGauntlet(List<Crew> gauntletCrew){
+        Gauntlet gauntlet = GauntletUtil.calculateGauntlet(GAUNTLET_STAT, GAUNTLET_TRAITS, gauntletCrew);
+        LOGGER.info(gauntlet);
+    }
+
     private static void calculateBestGauntletCrew(List<Crew> gauntletCrew){
         Map<String,Integer> bestCrew = GauntletUtil.calculateBestCrew(gauntletCrew);
         LOGGER.info(bestCrew);
-    }
-
-    private static void calculateAGauntlet(List<Crew> allMyCrew){
-        Gauntlet gauntlet = GauntletUtil.calculateGauntlet(Stats.SCIENCE, new ArrayList<>(), allMyCrew);
-        LOGGER.info(gauntlet);
     }
 
     private static void calculateBestCrew(List<Crew> voyageCrew){

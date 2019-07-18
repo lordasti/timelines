@@ -41,14 +41,12 @@ public class GauntletUtil{
             Collections.reverseOrder(Map.Entry.comparingByValue()));
         LOGGER.info(gauntletRank);
 
-        Map<String,Integer> crewRank = MapUtil.sortMapByValues(bestCrew,
+        return MapUtil.sortMapByValues(bestCrew,
             Collections.reverseOrder(Map.Entry.comparingByValue()));
-
-        return crewRank;
     }
 
     public static Gauntlet calculateGauntlet(Stats primary, List<String> traits, List<Crew> roster){
-        List<List<Crew>> bestCandidates = getBestCandidates(primary, roster);
+        List<List<Crew>> bestCandidates = getBestCandidates(primary, traits, roster);
         List<BonusStats> pairs =
             Combination.getCombinations().stream().filter(bonus -> bonus.getPrimary() == primary).collect(
                 Collectors.toList());
@@ -74,7 +72,7 @@ public class GauntletUtil{
             .orElseThrow(NoSuchElementException::new);
     }
 
-    private static List<List<Crew>> getBestCandidates(Stats primary, List<Crew> roster){
+    private static List<List<Crew>> getBestCandidates(Stats primary, List<String> traits, List<Crew> roster){
         StopWatch watch = StopWatch.createStarted();
 
         List<List<Crew>> bestCandidates =
@@ -82,7 +80,7 @@ public class GauntletUtil{
                 if(stat == primary){
                     return new ArrayList<Crew>();
                 }
-                return getBestCandidates(roster, primary, stat);
+                return getBestCandidates(new BonusStats(primary, stat), traits, roster);
             }).collect(Collectors.toList());
 
         watch.stop();
@@ -91,11 +89,11 @@ public class GauntletUtil{
         return bestCandidates;
     }
 
-    private static List<Crew> getBestCandidates(List<Crew> roster, Stats primary, Stats stat){
-        return roster.stream().filter(crew -> crew.getSkill(primary).getBase() > 0)
-            .filter(crew -> crew.getSkill(stat).getBase() > 0)
-            .sorted((o1, o2) -> Integer.compare(o2.getSkill(primary).getAvg() + o2.getSkill(stat).getAvg(),
-                o1.getSkill(primary).getAvg() + o1.getSkill(stat).getAvg()))
+    private static List<Crew> getBestCandidates(BonusStats bonusStats, List<String> traits, List<Crew> roster){
+        return roster.stream().filter(crew -> crew.getSkill(bonusStats.getPrimary()).getBase() > 0)
+            .filter(crew -> crew.getSkill(bonusStats.getSecondary()).getBase() > 0)
+            .sorted((o1, o2) -> Integer.compare(o2.getGauntletScore(bonusStats, traits),
+                o1.getGauntletScore(bonusStats, traits)))
             .limit(App.BEST_CREW_LIMIT)
             .collect(Collectors.toList());
     }
