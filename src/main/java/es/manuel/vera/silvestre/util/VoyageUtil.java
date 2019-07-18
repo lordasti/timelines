@@ -19,18 +19,7 @@ public class VoyageUtil{
     public static Map<String,Integer> calculateBestCrew(List<Crew> roster){
         Map<String,Integer> bestCrew = new LinkedHashMap<>();
         Map<BonusStats,LocalTime> voyages = new LinkedHashMap<>();
-        List<BonusStats> allPossibleCombinations = new ArrayList<>();
-
-        Stats[] stats = Stats.values();
-        for(int primary = 0; primary < 6; primary++){
-            for(int secondary = 0; secondary < 6; secondary++){
-                if(primary == secondary){
-                    continue;
-                }
-
-                allPossibleCombinations.add(new BonusStats(stats[primary], stats[secondary]));
-            }
-        }
+        List<BonusStats> allPossibleCombinations = Combination.getCombinations();
 
         allPossibleCombinations.forEach(bonusStats -> {
             StopWatch watch = StopWatch.createStarted();
@@ -52,23 +41,14 @@ public class VoyageUtil{
             LOGGER.info(bonusStats + " took " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
         });
 
-        Map<BonusStats,LocalTime> voyageRank = sortMapByValues(voyages,
+        Map<BonusStats,LocalTime> voyageRank = MapUtil.sortMapByValues(voyages,
             Collections.reverseOrder(Map.Entry.comparingByValue()));
         LOGGER.info(voyageRank);
 
-        Map<String,Integer> crewRank = sortMapByValues(bestCrew,
+        Map<String,Integer> crewRank = MapUtil.sortMapByValues(bestCrew,
             Collections.reverseOrder(Map.Entry.comparingByValue()));
 
         return crewRank;
-    }
-
-    private static <K, V> Map<K,V> sortMapByValues(Map<K,V> unordered, Comparator<Map.Entry<K,V>> comparator){
-        return unordered
-            .entrySet()
-            .stream()
-            .sorted(comparator)
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
-                LinkedHashMap::new));
     }
 
     public static Voyage calculateVoyage(BonusStats bonusStats, List<Crew> roster){

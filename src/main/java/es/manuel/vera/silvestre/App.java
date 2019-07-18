@@ -2,10 +2,8 @@ package es.manuel.vera.silvestre;
 
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import es.manuel.vera.silvestre.modelo.BonusStats;
-import es.manuel.vera.silvestre.modelo.Crew;
-import es.manuel.vera.silvestre.modelo.Stats;
-import es.manuel.vera.silvestre.modelo.Voyage;
+import es.manuel.vera.silvestre.modelo.*;
+import es.manuel.vera.silvestre.util.GauntletUtil;
 import es.manuel.vera.silvestre.util.VoyageUtil;
 import es.manuel.vera.silvestre.util.google.SheetsServiceUtil;
 import org.apache.commons.lang3.time.StopWatch;
@@ -14,6 +12,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +42,10 @@ public class App{
         // (Crew::isActive).collect(Collectors.toList ());
 
         //calculateAVoyage(allMyCrew);
-        calculateBestCrew(allMyCrew);
+        //calculateBestCrew(allMyCrew);
+
+        //calculateAGauntlet(allMyCrew);
+        calculateBestGauntletCrew(allMyCrew);
 
         watch.stop();
         LOGGER.info("Total time: " + watch.getTime(TimeUnit.SECONDS) + " s");
@@ -63,6 +65,16 @@ public class App{
         rawCrew.remove(0);
 
         return rawCrew;
+    }
+
+    private static void calculateBestGauntletCrew(List<Crew> gauntletCrew){
+        Map<String,Integer> bestCrew = GauntletUtil.calculateBestCrew(gauntletCrew);
+        LOGGER.info(bestCrew);
+    }
+
+    private static void calculateAGauntlet(List<Crew> allMyCrew){
+        Gauntlet gauntlet = GauntletUtil.calculateGauntlet(Stats.SCIENCE, new ArrayList<>(), allMyCrew);
+        LOGGER.info(gauntlet);
     }
 
     private static void calculateBestCrew(List<Crew> voyageCrew){
