@@ -40,7 +40,7 @@ public class Crew{
     public int getGauntletScore(BonusStats bonusStats, List<String> gauntletTraits){
         double factor = 0.05D + gauntletTraits.stream().mapToDouble(trait -> traits.contains(trait) ? 0.2D : 0D).sum();
         return (int) ((getSkill(bonusStats.getPrimary()).getAvg() +
-            getSkill(bonusStats.getSecondary()).getAvg()) * factor);
+            getSkill(bonusStats.getSecondary()).getAvg()) * (1 + factor));
     }
 
     public Skill getSkill(Stats stat){
