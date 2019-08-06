@@ -45,7 +45,7 @@ public class VoyageUtilTest{
         when(med.getAvgTotal()).thenReturn(2500);
 
         StopWatch watch = StopWatch.createStarted();
-        int result = VoyageUtil.doDeterministicSimulation(Arrays.asList(cmd, dip, eng, sec, sci, med));
+        int result = VoyageUtil.doDeterministicSimulation(Arrays.asList(cmd, dip, eng, sec, sci, med), 2500);
         watch.stop();
         LOGGER.debug("Estimate:" + LocalTime.ofSecondOfDay(result));
 
@@ -94,7 +94,7 @@ public class VoyageUtilTest{
         when(med.getMax()).thenReturn(750);
 
         StopWatch watch = StopWatch.createStarted();
-        Double result = VoyageUtil.doNumSim(Arrays.asList(cmd, dip, eng, sec, sci, med), numSims);
+        Double result = VoyageUtil.doNumSim(Arrays.asList(cmd, dip, eng, sec, sci, med), numSims, 2500);
         watch.stop();
 
         LOGGER.info("numSims[" + numSims + "] = " + result + ". Took: " +

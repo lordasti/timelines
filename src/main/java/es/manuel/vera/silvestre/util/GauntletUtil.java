@@ -46,7 +46,7 @@ public class GauntletUtil{
     }
 
     public static Gauntlet calculateGauntlet(Stats primary, List<String> traits, List<Crew> roster){
-        List<List<Crew>> bestCandidates = getBestCandidates(primary, traits, roster);
+        List<List<Crew>> bestCandidates = getBestCandidates(primary, roster);
         List<BonusStats> pairs =
             Combination.getCombinations().stream().filter(bonus -> bonus.getPrimary() == primary).collect(
                 Collectors.toList());
@@ -72,7 +72,7 @@ public class GauntletUtil{
             .orElseThrow(NoSuchElementException::new);
     }
 
-    private static List<List<Crew>> getBestCandidates(Stats primary, List<String> traits, List<Crew> roster){
+    private static List<List<Crew>> getBestCandidates(Stats primary, List<Crew> roster){
         StopWatch watch = StopWatch.createStarted();
 
         List<List<Crew>> bestCandidates =
@@ -80,7 +80,7 @@ public class GauntletUtil{
                 if(stat == primary){
                     return new ArrayList<Crew>();
                 }
-                return getBestCandidates(new BonusStats(primary, stat), traits, roster);
+                return getBestCandidates(new BonusStats(primary, stat), roster);
             }).collect(Collectors.toList());
 
         watch.stop();
@@ -89,11 +89,11 @@ public class GauntletUtil{
         return bestCandidates;
     }
 
-    private static List<Crew> getBestCandidates(BonusStats bonusStats, List<String> traits, List<Crew> roster){
+    private static List<Crew> getBestCandidates(BonusStats bonusStats, List<Crew> roster){
         return roster.stream().filter(crew -> crew.getSkill(bonusStats.getPrimary()).getBase() > 0)
             .filter(crew -> crew.getSkill(bonusStats.getSecondary()).getBase() > 0)
-            .sorted((o1, o2) -> Integer.compare(o2.getGauntletScore(bonusStats, traits),
-                o1.getGauntletScore(bonusStats, traits)))
+            .sorted((o1, o2) -> Integer.compare(o2.getGauntletPairScore(bonusStats),
+                o1.getGauntletPairScore(bonusStats)))
             .limit(App.BEST_CREW_LIMIT)
             .collect(Collectors.toList());
     }

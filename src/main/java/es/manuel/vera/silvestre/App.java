@@ -24,18 +24,34 @@ public class App{
     public static final int BEST_CREW_LIMIT = 100;
 
     //VOYAGE
-    public static final BonusStats VOYAGE_BONUS_STATS = new BonusStats(Stats.SECURITY, Stats.MEDICINE);
+    public static final BonusStats VOYAGE_BONUS_STATS = new BonusStats(Stats.MEDICINE, Stats.SCIENCE);
     public static final int VOYAGE_ANTIMATTER = 2500;
     public static final int VOYAGE_MODE = 1; //0 Random, 1. Deterministic
     public static final int VOYAGE_NUM_SIMS = 100;//Random only
+    public static final List<String> VOYAGE_TRAITS = Arrays.asList(
+        "federation",
+        "villain",
+        "romulan",
+        "bajoran",
+        "brutal",
+        "explorer",
+        "gambler",
+        "tactician",
+        "innovator",
+        "human",
+        "physician",
+        "starfleet");
+    //lowercase
 
     //GAUNTLET
     public static final Stats GAUNTLET_STAT = Stats.SCIENCE;
-    public static final List<String> GAUNTLET_TRAITS = Arrays.asList("human", "starfleet", "federation");//lower case
+    public static final List<String> GAUNTLET_TRAITS = Arrays.asList("resourceful", "innovator", "vulcan");
+    //lowercase
+    // case
 
     //UTILITY
     private static final Logger LOGGER = Logger.getLogger(App.class);
-    private static final String SPREADSHEET_ID = "1CEwYl9Xo-u6rz7xaXyivKjCqWmOOhqhlS_PsksoYP4A";
+    private static final String SPREADSHEET_ID = "1xTaefRpNV_gPHMympcVU-c2uAe8hVIYOjbt3MXBusjc";
 
     public static void main(String[] args) throws IOException, GeneralSecurityException{
         StopWatch watch = StopWatch.createStarted();
@@ -47,13 +63,14 @@ public class App{
         List<Crew> allMyCrew =
             IntStream.range(0, rawCrew.size()).mapToObj(id -> new Crew(id, rawCrew.get(id))).filter(Crew::hasStars)
                 .collect(Collectors.toList());
-        //List<Crew> allActiveCrew = awCrew.size()).mapToObj(id -> new Crew(id, rawCrew.get(id))).filter
-        // (Crew::isActive).collect(Collectors.toList ());
+        //List<Crew> allActiveCrew =
+        //    IntStream.range(0, rawCrew.size()).mapToObj(id -> new Crew(id, rawCrew.get(id))).filter
+        //        (Crew::isActive).collect(Collectors.toList());
 
-        //calculateAVoyage(allMyCrew);
+        calculateAVoyage(allMyCrew);
         //calculateBestCrew(allMyCrew);
 
-        calculateAGauntlet(allMyCrew);
+        //calculateAGauntlet(allMyCrew);
         //calculateBestGauntletCrew(allMyCrew);
 
         watch.stop();
@@ -76,21 +93,6 @@ public class App{
         return rawCrew;
     }
 
-    private static void calculateAGauntlet(List<Crew> gauntletCrew){
-        Gauntlet gauntlet = GauntletUtil.calculateGauntlet(GAUNTLET_STAT, GAUNTLET_TRAITS, gauntletCrew);
-        LOGGER.info(gauntlet);
-    }
-
-    private static void calculateBestGauntletCrew(List<Crew> gauntletCrew){
-        Map<String,Integer> bestCrew = GauntletUtil.calculateBestCrew(gauntletCrew);
-        LOGGER.info(bestCrew);
-    }
-
-    private static void calculateBestCrew(List<Crew> voyageCrew){
-        Map<String,Integer> bestCrew = VoyageUtil.calculateBestCrew(voyageCrew);
-        LOGGER.info(bestCrew);
-    }
-
     private static void calculateAVoyage(List<Crew> roster){
         Voyage voyage = VoyageUtil.calculateVoyage(roster);
         LOGGER.info(voyage);
@@ -101,5 +103,20 @@ public class App{
         LOGGER.info("Science:" + voyage.getScience());
         LOGGER.info("Medicine:" + voyage.getMedicine());
         LOGGER.info("Estimate:" + LocalTime.ofSecondOfDay(voyage.getVoyageEstimate().longValue()));
+    }
+
+    private static void calculateAGauntlet(List<Crew> gauntletCrew){
+        Gauntlet gauntlet = GauntletUtil.calculateGauntlet(GAUNTLET_STAT, GAUNTLET_TRAITS, gauntletCrew);
+        LOGGER.info(gauntlet);
+    }
+
+    private static void calculateBestCrew(List<Crew> voyageCrew){
+        Map<String,Integer> bestCrew = VoyageUtil.calculateBestCrew(voyageCrew);
+        LOGGER.info(bestCrew);
+    }
+
+    private static void calculateBestGauntletCrew(List<Crew> gauntletCrew){
+        Map<String,Integer> bestCrew = GauntletUtil.calculateBestCrew(gauntletCrew);
+        LOGGER.info(bestCrew);
     }
 }

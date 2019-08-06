@@ -136,23 +136,32 @@ public class VoyageUtil{
         List<Skill> others = getOthers(bonusStats, slots);
         List<Skill> skills = Arrays.asList(primary, secondary, others.get(0), others.get(1), others.get(2),
             others.get(3));
-        return doEstimation(skills);
+        int antimatter = getAntimatter(slots);
+        return doEstimation(skills, antimatter);
     }
 
-    private static double doEstimation(List<Skill> skills){
+    private static int getAntimatter(List<Slot> slots){
+        //count matching traits
+        int matchingTraits = (int) slots.stream().filter(slot ->
+            slot.getCrew().getTraits().contains(App.VOYAGE_TRAITS.get(slot.getIndex()))
+        ).count();
+
+        return App.VOYAGE_ANTIMATTER + matchingTraits * 25;
+    }
+
+    private static double doEstimation(List<Skill> skills, int antimatter){
         if(App.VOYAGE_MODE == 0){
-            return doNumSim(skills, App.VOYAGE_NUM_SIMS);
+            return doNumSim(skills, App.VOYAGE_NUM_SIMS, antimatter);
         }
 
-        return doDeterministicSimulation(skills);
+        return doDeterministicSimulation(skills, antimatter);
     }
 
-    protected static double doNumSim(List<Skill> skills, Integer numSims){
-        return IntStream.range(0, numSims).parallel().map(i -> doSimulation(skills)).average()
-            .getAsDouble();
+    protected static double doNumSim(List<Skill> skills, Integer numSims, int antimatter){
+        return IntStream.range(0, numSims).parallel().map(i -> doSimulation(skills, antimatter)).average().orElse(0D);
     }
 
-    private static int doSimulation(List<Skill> skills){
+    private static int doSimulation(List<Skill> skills, int antimatter){
         int secondsPerTick = 20;
         int hazardTick = 4;
         int rewardTick = 7;
@@ -163,7 +172,7 @@ public class VoyageUtil{
         int hazAmPass = 5;
         int hazAmFail = 30;
         int tick = 0;
-        int am = App.VOYAGE_ANTIMATTER;
+        int am = antimatter;
 
         while(tick < 10000 && am > 0){
             ++tick;
@@ -219,7 +228,7 @@ public class VoyageUtil{
         return min + Math.random() * (max - min);
     }
 
-    protected static int doDeterministicSimulation(List<Skill> skills){
+    protected static int doDeterministicSimulation(List<Skill> skills, int antimatter){
         int secondsPerTick = 20;
         int hazardTick = 4;
         int rewardTick = 7;
@@ -230,7 +239,7 @@ public class VoyageUtil{
         int hazAmPass = 5;
         int hazAmFail = 30;
         int tick = 0;
-        int am = App.VOYAGE_ANTIMATTER;
+        int am = antimatter;
 
         while(am > 0){
             ++tick;
@@ -334,9 +343,9 @@ public class VoyageUtil{
     }
 
     private static List<Crew> getBestCandidates(List<Crew> roster, Stats stat){
-        return roster.stream()
+        return roster.stream().filter(crew -> crew.getSkill(stat).getBase() > 0)
             .sorted((o1, o2) -> Integer.compare(o2.getSkill(stat).getAvgTotal(), o1.getSkill(stat).getAvgTotal()))
-            .limit(App.BEST_CREW_LIMIT)
+            //.limit(App.BEST_CREW_LIMIT)
             .collect(Collectors.toList());
     }
 

@@ -11,8 +11,7 @@ public class Gauntlet{
     private final List<Slot> slots;
 
     public int getScore(){
-        return slots.stream().map(Slot::getCrew).map(Crew::getSkills).flatMap(skills -> skills.stream())
-            .mapToInt(Skill::getAvg).sum();
+        return slots.stream().map(Slot::getCrew).mapToInt(Crew::getGauntletScore).sum();
     }
 
     @Override
