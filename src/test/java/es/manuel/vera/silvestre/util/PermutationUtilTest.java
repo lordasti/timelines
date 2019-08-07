@@ -13,16 +13,16 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 //import static org.mockito.Mockito.*;
 
-public class PermutationTest{
+public class PermutationUtilTest{
 
-    private static final Logger LOGGER = Logger.getLogger(PermutationTest.class);
+    private static final Logger LOGGER = Logger.getLogger(PermutationUtilTest.class);
 
     @Test
     public void shouldDoPermutation(){
         List<Stats> stats = Arrays.asList(Stats.values());
 
         StopWatch watch = StopWatch.createStarted();
-        List<List<Stats>> permutations = Permutation.of(stats);
+        List<List<Stats>> permutations = PermutationUtil.of(stats);
         watch.stop();
 
         assertThat(permutations, hasSize(720));

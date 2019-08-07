@@ -6,7 +6,7 @@ import es.manuel.vera.silvestre.modelo.Stats;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Combination{
+public class CombinationUtil{
     public static List<BonusStats> getCombinations(){
         List<BonusStats> allPossibleCombinations = new ArrayList<>();
 

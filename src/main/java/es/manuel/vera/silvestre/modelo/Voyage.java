@@ -9,7 +9,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 public class Voyage implements Comparable<Voyage>{
     private List<Slot> slots;
-    private Double voyageEstimate;
+    private Integer voyageEstimate;
 
     public int getCommand(){
         return getSkillScore(Stats.COMMAND);

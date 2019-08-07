@@ -1,16 +1,13 @@
 package es.manuel.vera.silvestre.util;
 
-import es.manuel.vera.silvestre.App;
 import es.manuel.vera.silvestre.modelo.*;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import java.time.LocalTime;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class VoyageUtil{
 
@@ -19,14 +16,14 @@ public class VoyageUtil{
     public static Map<String,Integer> calculateBestCrew(List<Crew> roster){
         Map<String,Integer> bestCrew = new LinkedHashMap<>();
         Map<BonusStats,LocalTime> voyages = new LinkedHashMap<>();
-        List<BonusStats> allPossibleCombinations = Combination.getCombinations();
+        List<BonusStats> allPossibleCombinations = CombinationUtil.getCombinations();
 
         allPossibleCombinations.forEach(bonusStats -> {
             StopWatch watch = StopWatch.createStarted();
 
-            Voyage voyage = calculateVoyage(bonusStats, roster);
+            Voyage voyage = calculateVoyage(bonusStats, roster, new ArrayList<>(), 2500);
 
-            voyages.put(bonusStats, LocalTime.ofSecondOfDay(voyage.getVoyageEstimate().intValue()));
+            voyages.put(bonusStats, LocalTime.ofSecondOfDay(voyage.getVoyageEstimate()));
 
             List<Crew> selectedCrew = voyage.getSlots().stream().map(Slot::getCrew).collect(Collectors.toList());
             selectedCrew.forEach(crew -> {
@@ -49,12 +46,13 @@ public class VoyageUtil{
             Collections.reverseOrder(Map.Entry.comparingByValue()));
     }
 
-    public static Voyage calculateVoyage(BonusStats bonusStats, List<Crew> roster){
+    public static Voyage calculateVoyage(BonusStats bonusStats, List<Crew> roster, List<String> voyageTraits,
+        int voyageAntimatter){
         StopWatch watch = StopWatch.createStarted();
 
         List<List<Crew>> bestCandidates = getBestCandidates(roster);
         List<List<Stats>> permutations = getPermutations();
-        Voyage result = calculateBestVoyage(bonusStats, bestCandidates, permutations);
+        Voyage result = calculateBestVoyage(bonusStats, bestCandidates, permutations, voyageTraits, voyageAntimatter);
 
         watch.stop();
         LOGGER.debug("calculateVoyage took " + watch.getTime(TimeUnit.SECONDS) + " s");
@@ -63,11 +61,11 @@ public class VoyageUtil{
     }
 
     private static Voyage calculateBestVoyage(BonusStats bonusStats, List<List<Crew>> bestCandidates,
-        List<List<Stats>> permutations){
+        List<List<Stats>> permutations, List<String> voyageTraits, int voyageAntimatter){
         StopWatch watch = StopWatch.createStarted();
 
         Voyage bestVoyage = permutations.parallelStream()
-            .map(permutation -> doPermutation(bonusStats, bestCandidates, permutation))
+            .map(permutation -> doPermutation(bonusStats, bestCandidates, permutation, voyageTraits, voyageAntimatter))
             .reduce((voyage1, voyage2) -> voyage2.getVoyageEstimate() > voyage1.getVoyageEstimate() ? voyage2 :
                 voyage1).orElseThrow(NoSuchElementException::new);
 
@@ -78,23 +76,26 @@ public class VoyageUtil{
     }
 
     private static Voyage doPermutation(BonusStats bonusStats, List<List<Crew>> bestCandidates,
-        List<Stats> permutation){
+        List<Stats> permutation, List<String> voyageTraits, int voyageAntimatter){
         StopWatch watch = StopWatch.createStarted();
 
-        Voyage best = Voyage.builder().slots(Collections.emptyList()).voyageEstimate(0D).build();
+        Voyage best = Voyage.builder().slots(Collections.emptyList()).voyageEstimate(0).build();
         for(int i = 0; i < permutation.size(); i++){
             Stats stat = permutation.get(i);
-            best = fillSlotForStat(stat, stat.getIndex() * 2, best, bonusStats, bestCandidates, permutation);
-            best = fillSlotForStat(stat, (stat.getIndex() * 2) + 1, best, bonusStats, bestCandidates, permutation);
+            best = fillSlotForStat(stat, stat.getIndex() * 2, best, bonusStats, bestCandidates, permutation,
+                voyageTraits, voyageAntimatter);
+            best = fillSlotForStat(stat, (stat.getIndex() * 2) + 1, best, bonusStats, bestCandidates, permutation,
+                voyageTraits, voyageAntimatter);
         }
 
         watch.stop();
-        LOGGER.debug("Permutation " + permutation + " took: " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
+        LOGGER.debug("PermutationUtil " + permutation + " took: " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
         return best;
     }
 
     private static Voyage fillSlotForStat(Stats stat, int index, Voyage bestSoFar, BonusStats bonusStats,
-        List<List<Crew>> bestCandidates, List<Stats> permutation){
+        List<List<Crew>> bestCandidates, List<Stats> permutation, List<String> voyageTraits,
+        int voyageAntimatter){
         StopWatch watch = StopWatch.createStarted();
 
         Set<Crew> selectedCrew = bestSoFar.getSlots().stream().map(Slot::getCrew).collect(Collectors.toSet());
@@ -109,7 +110,7 @@ public class VoyageUtil{
                     return slotsSoFar;
                 })
                 .map(slots -> Voyage.builder().slots(slots).voyageEstimate(
-                    calculateVoyageEstimate(bonusStats, slots))
+                    calculateVoyageEstimate(bonusStats, slots, voyageTraits, voyageAntimatter))
                     .build())
                 .reduce(
                     (voyage1, voyage2) -> voyage2.getVoyageEstimate() > voyage1.getVoyageEstimate() ? voyage2 : voyage1)
@@ -130,102 +131,28 @@ public class VoyageUtil{
         return candidates.stream().filter(candidate -> !selected.contains(candidate)).collect(Collectors.toList());
     }
 
-    private static Double calculateVoyageEstimate(BonusStats bonusStats, List<Slot> slots){
+    private static int calculateVoyageEstimate(BonusStats bonusStats, List<Slot> slots, List<String> voyageTraits,
+        int voyageAntimatter){
         Skill primary = getPrimary(bonusStats, slots);
         Skill secondary = getSecondary(bonusStats, slots);
         List<Skill> others = getOthers(bonusStats, slots);
         List<Skill> skills = Arrays.asList(primary, secondary, others.get(0), others.get(1), others.get(2),
             others.get(3));
-        int antimatter = getAntimatter(slots);
-        return doEstimation(skills, antimatter);
-    }
-
-    private static int getAntimatter(List<Slot> slots){
-        //count matching traits
-        int matchingTraits = (int) slots.stream().filter(slot ->
-            slot.getCrew().getTraits().contains(App.VOYAGE_TRAITS.get(slot.getIndex()))
-        ).count();
-
-        return App.VOYAGE_ANTIMATTER + matchingTraits * 25;
-    }
-
-    private static double doEstimation(List<Skill> skills, int antimatter){
-        if(App.VOYAGE_MODE == 0){
-            return doNumSim(skills, App.VOYAGE_NUM_SIMS, antimatter);
-        }
-
+        int antimatter = getAntimatter(slots, voyageTraits, voyageAntimatter);
         return doDeterministicSimulation(skills, antimatter);
     }
 
-    protected static double doNumSim(List<Skill> skills, Integer numSims, int antimatter){
-        return IntStream.range(0, numSims).parallel().map(i -> doSimulation(skills, antimatter)).average().orElse(0D);
-    }
-
-    private static int doSimulation(List<Skill> skills, int antimatter){
-        int secondsPerTick = 20;
-        int hazardTick = 4;
-        int rewardTick = 7;
-        int hazardAsRewardTick = 28;
-        int amPerActivity = 1;
-        int ticksBetweenDilemmas = 360;
-        int hazSkillPerTick = 7;
-        int hazAmPass = 5;
-        int hazAmFail = 30;
-        int tick = 0;
-        int am = antimatter;
-
-        while(tick < 10000 && am > 0){
-            ++tick;
-
-            // hazard && not dilemma
-            if(tick % hazardTick == 0 && tick % hazardAsRewardTick != 0 && tick % ticksBetweenDilemmas != 0){
-                Skill skill = pickSkill(skills);
-
-                // check (roll if necessary)
-                int hazDiff = tick * hazSkillPerTick;
-                float skillMin = skill.getBase() + skill.getMin();
-                if(hazDiff < skillMin){ // automatic success
-                    am += hazAmPass;
-                }else{
-                    float skillMax = skill.getBase() + skill.getMax();
-                    if(hazDiff >= skillMax){ // automatic fail
-                        am -= hazAmFail;
-                    }else{ // roll for it
-                        double skillRoll = randomRange(skillMin, skillMax);
-                        if(skillRoll >= hazDiff){
-                            am += hazAmPass;
-                        }else{
-                            am -= hazAmFail;
-                        }
-                    }
-                }
-            }else if(tick % rewardTick != 0 && tick % ticksBetweenDilemmas != 0){
-                am -= amPerActivity;
-            }
+    private static int getAntimatter(List<Slot> slots, List<String> voyageTraits, int voyageAntimatter){
+        if(voyageTraits.size() != 12){
+            return voyageAntimatter;
         }
 
-        return tick * secondsPerTick;
-    }
+        //count matching traits
+        int matchingTraits = (int) slots.stream().filter(slot ->
+            slot.getCrew().getTraits().contains(voyageTraits.get(slot.getIndex()))
+        ).count();
 
-    private static Skill pickSkill(List<Skill> skills){
-        float psChance = 0.35f;
-        float ssChance = 0.25f;
-        double skillPickRoll = Math.random();
-
-        int index;
-        if(skillPickRoll < psChance){
-            index = 0;
-        }else if(skillPickRoll < psChance + ssChance){
-            index = 1;
-        }else{
-            index = 2 + ThreadLocalRandom.current().nextInt(4);
-        }
-
-        return skills.get(index);
-    }
-
-    private static double randomRange(float min, float max){
-        return min + Math.random() * (max - min);
+        return voyageAntimatter + matchingTraits * 25;
     }
 
     protected static int doDeterministicSimulation(List<Skill> skills, int antimatter){
@@ -321,7 +248,7 @@ public class VoyageUtil{
     private static List<List<Stats>> getPermutations(){
         StopWatch watch = StopWatch.createStarted();
 
-        List<List<Stats>> permutations = Permutation.of(Arrays.asList(Stats.values()));
+        List<List<Stats>> permutations = PermutationUtil.of(Arrays.asList(Stats.values()));
 
         watch.stop();
         LOGGER.debug("Permutations init took " + watch.getTime(TimeUnit.MILLISECONDS) + " ms");
@@ -345,11 +272,6 @@ public class VoyageUtil{
     private static List<Crew> getBestCandidates(List<Crew> roster, Stats stat){
         return roster.stream().filter(crew -> crew.getSkill(stat).getBase() > 0)
             .sorted((o1, o2) -> Integer.compare(o2.getSkill(stat).getAvgTotal(), o1.getSkill(stat).getAvgTotal()))
-            //.limit(App.BEST_CREW_LIMIT)
             .collect(Collectors.toList());
-    }
-
-    public static Voyage calculateVoyage(List<Crew> roster){
-        return calculateVoyage(App.VOYAGE_BONUS_STATS, roster);
     }
 }

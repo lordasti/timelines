@@ -13,14 +13,14 @@ import static org.junit.Assert.assertThat;
 
 //import static org.mockito.Mockito.*;
 
-public class CombinationTest{
+public class CombinationUtilTest{
 
-    private static final Logger LOGGER = Logger.getLogger(CombinationTest.class);
+    private static final Logger LOGGER = Logger.getLogger(CombinationUtilTest.class);
 
     @Test
     public void shouldGetCombinations(){
         StopWatch watch = StopWatch.createStarted();
-        List<BonusStats> combinations = Combination.getCombinations();
+        List<BonusStats> combinations = CombinationUtil.getCombinations();
         watch.stop();
 
         assertThat(combinations, hasSize(30));

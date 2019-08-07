@@ -3,8 +3,8 @@ package es.manuel.vera.silvestre.modelo;
 public enum Stats{
     COMMAND(0, "CMD"),
     DIPLOMACY(1, "DIP"),
-    ENGINEERING(2, "ENG"),
-    SECURITY(3, "SEC"),
+    SECURITY(2, "SEC"),
+    ENGINEERING(3, "ENG"),
     SCIENCE(4, "SCI"),
     MEDICINE(5, "MED");
 

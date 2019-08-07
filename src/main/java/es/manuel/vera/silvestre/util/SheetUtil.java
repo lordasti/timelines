@@ -28,7 +28,7 @@ public class SheetUtil{
             return new ArrayList<>();
         }
 
-        return Arrays.asList(((String) raw.get(pos)).split(",")).stream().map(String::trim).map(String::toLowerCase)
+        return Arrays.stream(((String) raw.get(pos)).split(",")).map(String::trim).map(String::toLowerCase)
             .collect(Collectors.toList());
     }
 }

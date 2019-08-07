@@ -11,11 +11,12 @@ public class Gauntlet{
     private final List<Slot> slots;
 
     public int getScore(){
-        return slots.stream().map(Slot::getCrew).mapToInt(Crew::getGauntletScore).sum();
+        return slots.stream().map(Slot::getCrew).mapToInt(crew -> crew.getGauntletScore(traits)).sum();
     }
 
     @Override
     public String toString(){
-        return slots.toString();
+        getSlots().sort(Slot::compareTo);
+        return getSlots().toString();
     }
 }

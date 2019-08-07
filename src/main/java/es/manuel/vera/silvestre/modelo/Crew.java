@@ -1,6 +1,5 @@
 package es.manuel.vera.silvestre.modelo;
 
-import es.manuel.vera.silvestre.App;
 import es.manuel.vera.silvestre.util.SheetUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,7 +29,7 @@ public class Crew{
         name = raw.size() > 0 ? (String) raw.get(0) : "";
         active = SheetUtil.readBoolean(raw, 49);
         stars = SheetUtil.readInt(raw, 50);
-        skills = Arrays.asList(command, diplomacy, engineering, security, science, medicine);
+        skills = Arrays.asList(command, diplomacy, security, engineering, science, medicine);
         traits = SheetUtil.readList(raw, 46);
     }
 
@@ -38,15 +37,15 @@ public class Crew{
         return stars > 0;
     }
 
-    public int getGauntletScore(){
+    public int getGauntletScore(List<String> gauntletTraits){
         double factor =
-            1 + (0.05D + App.GAUNTLET_TRAITS.stream().mapToDouble(trait -> traits.contains(trait) ? 0.2D : 0D).sum());
+            1 + (0.05D + gauntletTraits.stream().mapToDouble(trait -> traits.contains(trait) ? 0.2D : 0D).sum());
         return (int) skills.stream().mapToInt(Skill::getAvg).mapToDouble(avg -> avg * factor).sum();
     }
 
-    public int getGauntletPairScore(BonusStats bonusStats){
+    public int getGauntletPairScore(BonusStats bonusStats, List<String> gauntletTraits){
         double factor =
-            0.05D + App.GAUNTLET_TRAITS.stream().mapToDouble(trait -> traits.contains(trait) ? 0.2D : 0D).sum();
+            0.05D + gauntletTraits.stream().mapToDouble(trait -> traits.contains(trait) ? 0.2D : 0D).sum();
         return (int) ((getSkill(bonusStats.getPrimary()).getAvg() +
             getSkill(bonusStats.getSecondary()).getAvg()) * (1 + factor));
     }
