@@ -1,46 +1,54 @@
 package es.manuel.vera.silvestre.modelo;
 
-import es.manuel.vera.silvestre.util.SheetUtil;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-import java.util.Arrays;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-public class Crew{
-    private final int id;
+@Getter
+@Builder(toBuilder = true)
+@EqualsAndHashCode(of = {"name"})
+public class Crew implements Comparable<Crew>{
+    private final long id;
+    private final long archetypeId;
+    private final String symbol;
     private final String name;
-    private final boolean active;
+    private final String shortName;
+    private final String flavor;
+    private final int level;
     private final int stars;
-    private final List<Skill> skills;
+    private final int maxStars;
+    private final boolean active;
     private final List<String> traits;
+    private final List<String> hiddenTraits;
+    private final List<Long> missingEquipment;
+    private final List<Skill> skills;
+    private final PvP pvp;
+    private final boolean frozen;
 
-    public Crew(int id, List<Object> raw){
+    public Crew(long id, long archetypeId, String symbol, String name, String shortName, String flavor, int level,
+        int stars, int maxStars, boolean active, List<String> traits, List<String> hiddenTraits,
+        List<Long> missingEquipment, List<Skill> skills, PvP pvp, boolean frozen){
         this.id = id;
-        Skill command = new Skill(Stats.COMMAND, raw, 60);
-        Skill diplomacy = new Skill(Stats.DIPLOMACY, raw, 67);
-        Skill engineering = new Skill(Stats.ENGINEERING, raw, 74);
-        Skill security = new Skill(Stats.SECURITY, raw, 81);
-        Skill science = new Skill(Stats.SCIENCE, raw, 88);
-        Skill medicine = new Skill(Stats.MEDICINE, raw, 95);
+        this.archetypeId = archetypeId;
+        this.symbol = symbol;
+        this.name = name;
+        this.shortName = shortName;
+        this.flavor = flavor;
+        this.level = level;
+        this.stars = stars;
+        this.maxStars = maxStars;
+        this.active = active;
+        this.traits = traits;
+        this.hiddenTraits = hiddenTraits;
+        this.missingEquipment = missingEquipment;
+        this.skills = skills;
+        this.pvp = pvp;
+        this.frozen = frozen;
 
-        name = raw.size() > 0 ? (String) raw.get(0) : "";
-        active = SheetUtil.readBoolean(raw, 49);
-        stars = SheetUtil.readInt(raw, 50);
-        skills = Arrays.asList(command, diplomacy, security, engineering, science, medicine);
-        traits = SheetUtil.readList(raw, 46);
-    }
-
-    public boolean hasStars(){
-        return stars > 0;
-    }
-
-    public int getGauntletScore(List<String> gauntletTraits){
-        double factor =
-            1 + (0.05D + gauntletTraits.stream().mapToDouble(trait -> traits.contains(trait) ? 0.2D : 0D).sum());
-        return (int) skills.stream().mapToInt(Skill::getAvg).mapToDouble(avg -> avg * factor).sum();
+        getTraits().replaceAll(t -> t.replace('_', ' '));
+        getHiddenTraits().replaceAll(t -> t.replace('_', ' '));
     }
 
     public int getGauntletPairScore(BonusStats bonusStats, List<String> gauntletTraits){
@@ -54,14 +62,15 @@ public class Crew{
         return skills.get(stat.getIndex());
     }
 
-    @Override
-    public int hashCode(){
-        return id;
+    public int getGauntletScore(List<String> gauntletTraits){
+        double factor =
+            1 + (0.05D + gauntletTraits.stream().mapToDouble(trait -> traits.contains(trait) ? 0.2D : 0D).sum());
+        return (int) skills.stream().mapToInt(Skill::getAvg).mapToDouble(avg -> avg * factor).sum();
     }
 
     @Override
-    public boolean equals(Object other){
-        return other instanceof Crew && id == ((Crew) other).id;
+    public int compareTo(Crew o){
+        return name.compareTo(o.getName());
     }
 
     @Override

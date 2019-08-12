@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class GauntletUtil{
     private static final Logger LOGGER = Logger.getLogger(VoyageUtil.class);
 
-    public static Map<String,Integer> calculateBestCrew(List<Crew> roster){
+    public static Map<String,Integer> calculateBestCrew(List<? extends Crew> roster){
         Map<String,Integer> bestCrew = new LinkedHashMap<>();
         Map<Stats,Integer> gauntlets = new LinkedHashMap<>();
         List<Stats> allPossibleCombinations = Arrays.asList(Stats.values());
@@ -23,8 +23,9 @@ public class GauntletUtil{
 
             gauntlets.put(stat, gauntlet.getScore());
 
-            List<Crew> selectedCrew = gauntlet.getSlots().stream().map(Slot::getCrew).collect(Collectors.toList());
-            selectedCrew.forEach(crew -> {
+            List<Crew> selectedSheetCrew =
+                gauntlet.getSlots().stream().map(Slot::getCrew).collect(Collectors.toList());
+            selectedSheetCrew.forEach(crew -> {
                 if(bestCrew.containsKey(crew.getName())){
                     bestCrew.put(crew.getName(), bestCrew.get(crew.getName()) + 1);
                 }else{
@@ -44,7 +45,7 @@ public class GauntletUtil{
             Collections.reverseOrder(Map.Entry.comparingByValue()));
     }
 
-    public static Gauntlet calculateGauntlet(Stats primary, List<Crew> roster, List<String> gauntletTraits){
+    public static Gauntlet calculateGauntlet(Stats primary, List<? extends Crew> roster, List<String> gauntletTraits){
         Map<Stats,List<Crew>> bestCandidates = getBestCandidates(primary, roster, gauntletTraits);
         List<BonusStats> pairs =
             CombinationUtil.getCombinations().stream().filter(bonus -> bonus.getPrimary() == primary).collect(
@@ -54,14 +55,16 @@ public class GauntletUtil{
         return permutations.stream().map(permutation -> {
             LOGGER.debug("PermutationUtil: " + permutation);
             Gauntlet bestSoFar = new Gauntlet(primary, gauntletTraits, new ArrayList<>());
-            Set<Crew> selectedCrew = bestSoFar.getSlots().stream().map(Slot::getCrew).collect(Collectors.toSet());
+            Set<Crew> selectedSheetCrew =
+                bestSoFar.getSlots().stream().map(Slot::getCrew).collect(Collectors.toSet());
             permutation.forEach(bonusStats -> {
-                List<Crew> bestCrewForStat = bestCandidates.get(bonusStats.getSecondary());
+                List<Crew> bestSheetCrewForStat = bestCandidates.get(bonusStats.getSecondary());
                 Crew candidate =
-                    bestCrewForStat.stream().filter(crew -> !selectedCrew.contains(crew)).findFirst().orElseThrow(
-                        NoSuchElementException::new);
+                    bestSheetCrewForStat.stream().filter(crew -> !selectedSheetCrew.contains(crew)).findFirst()
+                        .orElseThrow(
+                            NoSuchElementException::new);
                 LOGGER.debug("Candidate found for slot [" + bonusStats.getSecondary() + "] : " + candidate);
-                selectedCrew.add(candidate);
+                selectedSheetCrew.add(candidate);
                 List<Slot> slots = bestSoFar.getSlots();
                 slots.add(Slot.builder().index(bonusStats.getSecondary().getIndex()).stat(bonusStats.getSecondary())
                     .crew(candidate).build());
@@ -71,7 +74,7 @@ public class GauntletUtil{
             .orElseThrow(NoSuchElementException::new);
     }
 
-    private static Map<Stats,List<Crew>> getBestCandidates(Stats primary, List<Crew> roster,
+    private static Map<Stats,List<Crew>> getBestCandidates(Stats primary, List<? extends Crew> roster,
         List<String> gauntletTraits){
         StopWatch watch = StopWatch.createStarted();
 
@@ -90,7 +93,8 @@ public class GauntletUtil{
         return bestCandidates;
     }
 
-    private static List<Crew> getBestCandidates(BonusStats bonusStats, List<Crew> roster, List<String> gauntletTraits){
+    private static List<Crew> getBestCandidates(BonusStats bonusStats, List<? extends Crew> roster,
+        List<String> gauntletTraits){
         return roster.stream().filter(crew -> crew.getSkill(bonusStats.getPrimary()).getBase() > 0)
             .filter(crew -> crew.getSkill(bonusStats.getSecondary()).getBase() > 0)
             .sorted((o1, o2) -> Integer.compare(o2.getGauntletPairScore(bonusStats, gauntletTraits),

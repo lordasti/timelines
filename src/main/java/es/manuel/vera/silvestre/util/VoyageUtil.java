@@ -13,7 +13,15 @@ public class VoyageUtil{
 
     private static final Logger LOGGER = Logger.getLogger(VoyageUtil.class);
 
-    public static Map<String,Integer> calculateBestCrew(List<Crew> roster){
+    public static Ship getBestShip(String shipTrait){
+        return AppUtil.getShips().stream()
+            .map(ship -> ship.toBuilder().antimatter(ship.getTraits().contains(shipTrait) ?
+                ship.getAntimatter() + 150 : ship.getAntimatter()).build())
+            .reduce((ship1, ship2) -> ship2.getAntimatter() > ship1.getAntimatter() ? ship2 : ship1)
+            .orElseThrow(NoSuchElementException::new);
+    }
+
+    public static Map<String,Integer> calculateBestCrew(List<? extends Crew> roster){
         Map<String,Integer> bestCrew = new LinkedHashMap<>();
         Map<BonusStats,LocalTime> voyages = new LinkedHashMap<>();
         List<BonusStats> allPossibleCombinations = CombinationUtil.getCombinations();
@@ -25,7 +33,8 @@ public class VoyageUtil{
 
             voyages.put(bonusStats, LocalTime.ofSecondOfDay(voyage.getVoyageEstimate()));
 
-            List<Crew> selectedCrew = voyage.getSlots().stream().map(Slot::getCrew).collect(Collectors.toList());
+            List<Crew> selectedCrew =
+                voyage.getSlots().stream().map(Slot::getCrew).collect(Collectors.toList());
             selectedCrew.forEach(crew -> {
                 if(bestCrew.containsKey(crew.getName())){
                     bestCrew.put(crew.getName(), bestCrew.get(crew.getName()) + 1);
@@ -46,7 +55,7 @@ public class VoyageUtil{
             Collections.reverseOrder(Map.Entry.comparingByValue()));
     }
 
-    public static Voyage calculateVoyage(BonusStats bonusStats, List<Crew> roster, List<String> voyageTraits,
+    public static Voyage calculateVoyage(BonusStats bonusStats, List<? extends Crew> roster, List<String> voyageTraits,
         int voyageAntimatter){
         StopWatch watch = StopWatch.createStarted();
 
@@ -98,7 +107,8 @@ public class VoyageUtil{
         int voyageAntimatter){
         StopWatch watch = StopWatch.createStarted();
 
-        Set<Crew> selectedCrew = bestSoFar.getSlots().stream().map(Slot::getCrew).collect(Collectors.toSet());
+        Set<Crew> selectedCrew =
+            bestSoFar.getSlots().stream().map(Slot::getCrew).collect(Collectors.toSet());
         List<Crew> candidates = getBestCandidates(stat, selectedCrew, bestCandidates);
         Slot.SlotBuilder slotBuilder = Slot.builder().stat(stat).index(index);
 
@@ -123,7 +133,8 @@ public class VoyageUtil{
         return bestResult;
     }
 
-    private static List<Crew> getBestCandidates(Stats stat, Set<Crew> selected, List<List<Crew>> bestCandidates){
+    private static List<Crew> getBestCandidates(Stats stat, Set<Crew> selected,
+        List<List<Crew>> bestCandidates){
         return removeSelected(bestCandidates.get(stat.getIndex()), selected);
     }
 
@@ -142,7 +153,7 @@ public class VoyageUtil{
         return doDeterministicSimulation(skills, antimatter);
     }
 
-    private static int getAntimatter(List<Slot> slots, List<String> voyageTraits, int voyageAntimatter){
+    public static int getAntimatter(List<Slot> slots, List<String> voyageTraits, int voyageAntimatter){
         if(voyageTraits.size() != 12){
             return voyageAntimatter;
         }
@@ -256,7 +267,7 @@ public class VoyageUtil{
         return permutations;
     }
 
-    private static List<List<Crew>> getBestCandidates(List<Crew> roster){
+    private static List<List<Crew>> getBestCandidates(List<? extends Crew> roster){
         StopWatch watch = StopWatch.createStarted();
 
         List<List<Crew>> bestCandidates =
@@ -269,7 +280,7 @@ public class VoyageUtil{
         return bestCandidates;
     }
 
-    private static List<Crew> getBestCandidates(List<Crew> roster, Stats stat){
+    private static List<Crew> getBestCandidates(List<? extends Crew> roster, Stats stat){
         return roster.stream().filter(crew -> crew.getSkill(stat).getBase() > 0)
             .sorted((o1, o2) -> Integer.compare(o2.getSkill(stat).getAvgTotal(), o1.getSkill(stat).getAvgTotal()))
             .collect(Collectors.toList());

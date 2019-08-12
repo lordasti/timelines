@@ -1,0 +1,686 @@
+{
+  "gauntlet_id": 38,
+  "bracket_id": "2019-08-10_27",
+  "rank": 5,
+  "score": 2270,
+  "seconds_to_next_crew_refresh": 751,
+  "seconds_to_next_opponent_refresh": 0,
+  "seconds_to_end": 38077.063534924,
+  "state": "STARTED",
+  "jackpot_crew": "armus_crew",
+  "consecutive_wins": 7,
+  "refresh_cost": {
+    "currency": 2,
+    "amount": 50
+  },
+  "revive_cost": {
+    "currency": 1,
+    "amount": 30
+  },
+  "revive_and_save_cost": {
+    "currency": 1,
+    "amount": 50
+  },
+  "contest_data": {
+    "featured_skill": "diplomacy_skill",
+    "primary_skill": "command_skill",
+    "secondary_skill": "security_skill",
+    "traits": [
+      "crafty",
+      "scoundrel",
+      "costumed"
+    ],
+    "selected_crew": [
+      {
+        "crew_id": 63852486,
+        "archetype_symbol": "minuet_crew",
+        "rarity": false,
+        "level": 99,
+        "skills": [
+          {
+            "skill": "diplomacy_skill",
+            "max": 519,
+            "min": 198
+          },
+          {
+            "skill": "command_skill",
+            "max": 237,
+            "min": 108
+          }
+        ],
+        "max_rarity": 5,
+        "debuff": 8,
+        "disabled": false,
+        "selected": true,
+        "crit_chance": 25
+      },
+      {
+        "crew_id": 63852487,
+        "archetype_symbol": "q_mariachi_crew",
+        "rarity": true,
+        "level": 99,
+        "skills": [
+          {
+            "skill": "diplomacy_skill",
+            "max": 485,
+            "min": 232
+          },
+          {
+            "skill": "security_skill",
+            "max": 326,
+            "min": 153
+          }
+        ],
+        "max_rarity": 5,
+        "debuff": 4,
+        "disabled": false,
+        "selected": true,
+        "crit_chance": 65
+      },
+      {
+        "crew_id": 63852488,
+        "archetype_symbol": "okona_crew",
+        "rarity": false,
+        "level": 99,
+        "skills": [
+          {
+            "skill": "diplomacy_skill",
+            "max": 480,
+            "min": 241
+          },
+          {
+            "skill": "engineering_skill",
+            "max": 462,
+            "min": 142
+          },
+          {
+            "skill": "security_skill",
+            "max": 200,
+            "min": 89
+          }
+        ],
+        "max_rarity": 5,
+        "debuff": 4,
+        "disabled": false,
+        "selected": true,
+        "crit_chance": 25
+      },
+      {
+        "crew_id": 63852489,
+        "archetype_symbol": "locutus_crew",
+        "rarity": false,
+        "level": 99,
+        "skills": [
+          {
+            "skill": "diplomacy_skill",
+            "max": 531,
+            "min": 270
+          },
+          {
+            "skill": "security_skill",
+            "max": 333,
+            "min": 167
+          },
+          {
+            "skill": "science_skill",
+            "max": 413,
+            "min": 163
+          }
+        ],
+        "max_rarity": 5,
+        "debuff": 8,
+        "disabled": false,
+        "selected": true,
+        "crit_chance": 5
+      },
+      {
+        "crew_id": 63852490,
+        "archetype_symbol": "guinan_bartender_crew",
+        "rarity": false,
+        "level": 99,
+        "skills": [
+          {
+            "skill": "diplomacy_skill",
+            "max": 660,
+            "min": 324
+          },
+          {
+            "skill": "medicine_skill",
+            "max": 543,
+            "min": 213
+          },
+          {
+            "skill": "security_skill",
+            "max": 178,
+            "min": 89
+          }
+        ],
+        "max_rarity": 5,
+        "debuff": 4,
+        "disabled": false,
+        "selected": true,
+        "crit_chance": 5
+      }
+    ],
+    "ranked_rewards": [
+      {
+        "first": 1,
+        "last": 1,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 7,
+        "loot_box_rarity": 5
+      },
+      {
+        "first": 2,
+        "last": 3,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 5,
+        "loot_box_rarity": 5
+      },
+      {
+        "first": 4,
+        "last": 5,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 4,
+        "loot_box_rarity": 5
+      },
+      {
+        "first": 6,
+        "last": 10,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 3,
+        "loot_box_rarity": 5
+      },
+      {
+        "first": 11,
+        "last": 15,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 7,
+        "loot_box_rarity": 4
+      },
+      {
+        "first": 16,
+        "last": 20,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 5,
+        "loot_box_rarity": 4
+      },
+      {
+        "first": 21,
+        "last": 25,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 3,
+        "loot_box_rarity": 4
+      },
+      {
+        "first": 26,
+        "last": 30,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 7,
+        "loot_box_rarity": 3
+      },
+      {
+        "first": 31,
+        "last": 35,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 5,
+        "loot_box_rarity": 3
+      },
+      {
+        "first": 36,
+        "last": 40,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 3,
+        "loot_box_rarity": 3
+      },
+      {
+        "first": 41,
+        "last": 50,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 7,
+        "loot_box_rarity": 2
+      },
+      {
+        "first": 51,
+        "last": 75,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 5,
+        "loot_box_rarity": 2
+      },
+      {
+        "first": 76,
+        "last": 100,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 3,
+        "loot_box_rarity": 2
+      },
+      {
+        "first": 101,
+        "last": 150,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 2,
+        "loot_box_rarity": 2
+      },
+      {
+        "first": 151,
+        "last": 1000000,
+        "rewards": [
+          {
+            "type": 13,
+            "icon": {
+              "file": "/items/equipment/box02_icon"
+            },
+            "quantity": 1
+          }
+        ],
+        "quantity": 1,
+        "loot_box_rarity": 2
+      }
+    ],
+    "contest_rewards": [
+      {
+        "streak_required": 0,
+        "loot_box_rarity": 1,
+        "quantity": 1
+      },
+      {
+        "streak_required": 3,
+        "loot_box_rarity": 2,
+        "quantity": 1
+      },
+      {
+        "streak_required": 6,
+        "loot_box_rarity": 2,
+        "quantity": 1
+      },
+      {
+        "streak_required": 9,
+        "loot_box_rarity": 3,
+        "quantity": 1
+      },
+      {
+        "streak_required": 12,
+        "loot_box_rarity": 3,
+        "quantity": 1
+      },
+      {
+        "streak_required": 15,
+        "loot_box_rarity": 4,
+        "quantity": 1
+      },
+      {
+        "win_interval": 3,
+        "streak_required": 15,
+        "loot_box_rarity": 4,
+        "quantity": 1
+      }
+    ],
+    "crit_chance_per_trait": 20
+  },
+  "opponents": [
+    {
+      "player_id": 2194391,
+      "rank": 3,
+      "value": 90,
+      "level": 88,
+      "icon": {
+        "file": "/crew_icons/cm_picardtommygun_icon"
+      },
+      "name": "Mule",
+      "crew_contest_data": {
+        "crew": [
+          {
+            "crew_id": 63852931,
+            "archetype_symbol": "q_marshal_crew",
+            "rarity": false,
+            "level": 100,
+            "skills": [
+              {
+                "skill": "command_skill",
+                "max": 752,
+                "min": 387
+              },
+              {
+                "skill": "security_skill",
+                "max": 72,
+                "min": 34
+              },
+              {
+                "skill": "diplomacy_skill",
+                "max": 354,
+                "min": 204
+              }
+            ],
+            "max_rarity": 4,
+            "debuff": 12,
+            "disabled": false,
+            "selected": true,
+            "crit_chance": 65
+          }
+        ]
+      }
+    },
+    {
+      "player_id": 5469125,
+      "rank": 5,
+      "value": 80,
+      "level": 66,
+      "icon": {
+        "file": "/crew_icons/cm_harry_mudd_takeover_icon"
+      },
+      "name": "÷Spaceman Spiff",
+      "crew_contest_data": {
+        "crew": [
+          {
+            "crew_id": 63852569,
+            "archetype_symbol": "armus_crew",
+            "rarity": false,
+            "level": 100,
+            "skills": [
+              {
+                "skill": "science_skill",
+                "max": 920,
+                "min": 360
+              },
+              {
+                "skill": "command_skill",
+                "max": 636,
+                "min": 282
+              },
+              {
+                "skill": "security_skill",
+                "max": 367,
+                "min": 180
+              }
+            ],
+            "max_rarity": 5,
+            "debuff": 12,
+            "disabled": false,
+            "selected": true,
+            "crit_chance": 5
+          }
+        ]
+      }
+    },
+    {
+      "player_id": 3494030,
+      "rank": 7,
+      "value": 70,
+      "level": 83,
+      "icon": {
+        "file": "/crew_icons/cm_picardcaptain_icon"
+      },
+      "name": "Guinn (OBS31)",
+      "crew_contest_data": {
+        "crew": [
+          {
+            "crew_id": 63852537,
+            "archetype_symbol": "q_marshal_crew",
+            "rarity": false,
+            "level": 100,
+            "skills": [
+              {
+                "skill": "command_skill",
+                "max": 752,
+                "min": 387
+              },
+              {
+                "skill": "security_skill",
+                "max": 73,
+                "min": 34
+              },
+              {
+                "skill": "diplomacy_skill",
+                "max": 361,
+                "min": 207
+              }
+            ],
+            "max_rarity": 4,
+            "debuff": 0,
+            "disabled": true,
+            "selected": true,
+            "crit_chance": 65
+          }
+        ]
+      }
+    },
+    {
+      "player_id": 6435873,
+      "rank": 8,
+      "value": 65,
+      "level": 49,
+      "icon": {
+        "file": "/crew_icons/cm_archer_testpilot_icon"
+      },
+      "name": "White Haven",
+      "crew_contest_data": {
+        "crew": [
+          {
+            "crew_id": 63852396,
+            "archetype_symbol": "armus_crew",
+            "rarity": true,
+            "level": 100,
+            "skills": [
+              {
+                "skill": "science_skill",
+                "max": 870,
+                "min": 340
+              },
+              {
+                "skill": "command_skill",
+                "max": 613,
+                "min": 271
+              },
+              {
+                "skill": "security_skill",
+                "max": 351,
+                "min": 172
+              }
+            ],
+            "max_rarity": 5,
+            "debuff": 4,
+            "disabled": false,
+            "selected": true,
+            "crit_chance": 5
+          }
+        ]
+      }
+    },
+    {
+      "player_id": 1634234,
+      "rank": 20,
+      "value": 10,
+      "level": 83,
+      "icon": {
+        "file": "/crew_icons/cm_kirk_incognito_icon"
+      },
+      "name": "Theta Sigma",
+      "crew_contest_data": {
+        "crew": [
+          {
+            "crew_id": 63852021,
+            "archetype_symbol": "q_marshal_crew",
+            "rarity": false,
+            "level": 100,
+            "skills": [
+              {
+                "skill": "command_skill",
+                "max": 718,
+                "min": 370
+              },
+              {
+                "skill": "security_skill",
+                "max": 71,
+                "min": 33
+              },
+              {
+                "skill": "diplomacy_skill",
+                "max": 338,
+                "min": 194
+              }
+            ],
+            "max_rarity": 4,
+            "debuff": 12,
+            "disabled": false,
+            "selected": true,
+            "crit_chance": 65
+          }
+        ]
+      }
+    },
+    {
+      "player_id": 567995,
+      "rank": 29,
+      "value": 10,
+      "level": 85,
+      "icon": {
+        "file": "/crew_icons/cm_dsc_stamets_offduty_icon"
+      },
+      "name": "sisko's revenge",
+      "crew_contest_data": {
+        "crew": [
+          {
+            "crew_id": 63852838,
+            "archetype_symbol": "q_judge_crew",
+            "rarity": false,
+            "level": 100,
+            "skills": [
+              {
+                "skill": "security_skill",
+                "max": 448,
+                "min": 223
+              },
+              {
+                "skill": "command_skill",
+                "max": 455,
+                "min": 229
+              },
+              {
+                "skill": "diplomacy_skill",
+                "max": 396,
+                "min": 203
+              }
+            ],
+            "max_rarity": 5,
+            "debuff": 0,
+            "disabled": false,
+            "selected": true,
+            "crit_chance": 65
+          }
+        ]
+      }
+    }
+  ]
+}
