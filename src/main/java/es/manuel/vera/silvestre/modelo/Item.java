@@ -8,10 +8,15 @@ import lombok.Getter;
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"archetypeId"})
 public class Item{
-    private final int type;
-    private final String symbol;
-    private final String name;
-    private final String flavor;
-    private final long archetypeId;
-    private final int stars;
+    protected final int type;
+    protected final String symbol;
+    protected final String name;
+    protected final String flavor;
+    protected final long archetypeId;
+    protected final int stars;
+
+    @Override
+    public String toString(){
+        return name + " {" + stars + "}";
+    }
 }

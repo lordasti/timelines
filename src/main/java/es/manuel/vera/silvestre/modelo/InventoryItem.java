@@ -2,6 +2,7 @@ package es.manuel.vera.silvestre.modelo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -9,6 +10,7 @@ import lombok.Getter;
 public class InventoryItem extends Item{
     private final int quantity;
 
+    @Builder(toBuilder = true)
     public InventoryItem(@JsonProperty("type") int type, @JsonProperty("symbol") String symbol,
         @JsonProperty("name") String name, @JsonProperty("flavor") String flavor,
         @JsonProperty("archetype_id") long archetypeId, @JsonProperty("quantity") int quantity,

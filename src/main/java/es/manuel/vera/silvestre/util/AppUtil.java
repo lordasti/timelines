@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,6 +32,10 @@ public class AppUtil{
     private static List<Crew> frozenCrew = null;
     private static List<Crew> myCrew = null;
     private static List<Crew> timelinesCrew = null;
+    private static List<InventoryItem> inventory = null;
+    private static Map<Long,InventoryItem> inventoryMap = null;
+    private static List<Long> missingEquipmentIds = null;
+    private static List<ArchetypeItem> recipes = null;
 
     public static List<Crew> getTimelinesCrew(){
         if(timelinesCrew != null){
@@ -218,5 +223,49 @@ public class AppUtil{
         }
 
         return gauntlet;
+    }
+
+    public static Map<Long,InventoryItem> getInventoryMap(){
+        if(inventoryMap != null){
+            return inventoryMap;
+        }
+
+        inventoryMap = getInventory().stream().collect(Collectors.toMap(item -> item.getArchetypeId(), item -> item));
+        return inventoryMap;
+    }
+
+    public static List<InventoryItem> getInventory(){
+        if(inventory != null){
+            return inventory;
+        }
+
+        inventory = getPlayer().getCharacter().getInventory();
+        return inventory;
+    }
+
+    public static List<Long> getMissingEquipmentIds(){
+        if(missingEquipmentIds != null){
+            return missingEquipmentIds;
+        }
+
+        missingEquipmentIds = getActiveCrew().stream()
+            .flatMap(crew -> crew.getMissingEquipment().stream())
+            .collect(Collectors.toList());
+        return missingEquipmentIds;
+    }
+
+    public static List<ArchetypeItem> getRecipes(){
+        if(recipes != null){
+            return recipes;
+        }
+        try{
+            ObjectMapper mapper = new ObjectMapper();
+            InputStream is = AppUtil.class.getResourceAsStream("/player.json");
+            PlayerResponse response = mapper.readValue(is, PlayerResponse.class);
+            recipes = response.getRecipes();
+        }catch(IOException e){
+            LOGGER.error("Error in getRecipes", e);
+        }
+        return recipes;
     }
 }

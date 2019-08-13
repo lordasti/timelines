@@ -3,6 +3,7 @@ package es.manuel.vera.silvestre;
 import es.manuel.vera.silvestre.modelo.*;
 import es.manuel.vera.silvestre.util.AppUtil;
 import es.manuel.vera.silvestre.util.GauntletUtil;
+import es.manuel.vera.silvestre.util.ItemUtil;
 import es.manuel.vera.silvestre.util.VoyageUtil;
 
 import javax.swing.*;
@@ -20,9 +21,9 @@ public class Timelines{
 
     private JPanel panel1;
 
-    private JComboBox<String> crewComboBox;
-
     private JTabbedPane tabbedPane1;
+
+    private JComboBox<String> crewComboBox;
 
     private JButton calculateGauntlet;
     private JButton gauntletBestCrewButton;
@@ -30,11 +31,15 @@ public class Timelines{
     private JButton calculateVoyage;
     private JButton voyageBestCrewButton;
 
+    private JLabel inventoryItemsLabel;
+    private JTextField inventoryItemsNumberTextField;
+
     private JComboBox<Crew> candidatesComboBox;
     private JButton isUsefulButton;
     private JButton idleCrewButton;
 
     private JList<String> result;
+    private JButton calculateNeededItemsButton;
 
     public Timelines(){
         crewComboBox.addActionListener(e -> {
@@ -150,6 +155,11 @@ public class Timelines{
 
             result.setListData(printData.toArray(new String[0]));
         });
+        calculateNeededItemsButton.addActionListener(e ->
+            result.setListData(ItemUtil.getNeededItems().entrySet().stream()
+                .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
+                .map(n -> n.getKey() + ": " + n.getValue())
+                .toArray(String[]::new)));
     }
 
     private <E> E getSelectedValue(JComboBox<E> combo){
@@ -167,6 +177,9 @@ public class Timelines{
 
     private void createUIComponents(){
         crewToConsider = AppUtil.getMyCrew();
+
+        inventoryItemsNumberTextField = new JTextField();
+        inventoryItemsNumberTextField.setText("" + AppUtil.getInventory().size());
 
         crewComboBox = new JComboBox<>(CREW_OPTIONS);
         crewComboBox.setSelectedIndex(1);
