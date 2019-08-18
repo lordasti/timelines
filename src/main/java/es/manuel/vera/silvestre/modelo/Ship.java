@@ -61,5 +61,8 @@ public class Ship{
         this.hiddenTraits = hiddenTraits;
         this.antimatter = antimatter;
         this.level = level + 1;
+
+        getTraits().replaceAll(t -> t.replace('_', ' '));
+        getHiddenTraits().replaceAll(t -> t.replace('_', ' '));
     }
 }

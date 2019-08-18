@@ -128,22 +128,6 @@ public class PlayerResponseTest{
         MatcherAssert.assertThat(event.getName(), Is.is("Storm Warning"));
         MatcherAssert.assertThat(event.getFeaturedCrewSymbols(), Is.is(Arrays.asList("q2_crew", "riker_q_crew",
             "dsc_airiam_ltcmdr_crew")));
-        MatcherAssert.assertThat(event.getBonusCrewSymbols(), Is.is(Arrays.asList("riker_q_crew", "q2_crew",
-            "q_judge_crew", "q_starfleet_crew", "q_florist_crew", "q_human_crew", "q_nottingham_crew",
-            "q_marshal_crew", "q_mariachi_crew", "q_boxing_crew", "q_data_crew", "q_god_crew", "quinn_crew",
-            "rogers_amanda_crew", "vash_explorer_crew", "vash_qpid_crew", "vash_qless_crew", "riker_s1_commander_crew",
-            "riker_thomas_dirty_crew", "riker_s2_commander_crew", "riker_admiral_crew", "riker_angel_one_crew",
-            "riker_trombone_crew", "riker_augment_crew", "riker_ageofsail_crew", "riker_nemesis_crew",
-            "riker_mintakan_crew", "riker_anbo_crew", "riker_chef_crew", "riker_desperate_crew",
-            "dsc_airiam_ltcmdr_crew", "martia_crew", "duras_sisters_crew", "kilana_crew", "garak_tailor_crew",
-            "garak_mirror_crew", "garak_obsidian_crew", "garak_saboteur_crew", "quark_s1_bartender_crew",
-            "quark_klingon_armor_crew", "quark_risa_crew", "quark_martian_crew", "quark_wedding_day_crew",
-            "quark_stranded_crew", "clown_crew", "fennim_crew", "emh_authorauthor_crew", "culluh_crew", "trelane_crew",
-            "troi_cowboy_crew", "sisko_mirror_crew", "okona_crew", "doctor_chaotica_crew", "zek_grand_nagus_crew",
-            "penk_crew", "keiko_pahwraith_crew", "larouque_crew", "annorax_crew", "obrien_falcon_crew",
-            "yar_ishara_crew", "rasmussen_crew", "lursa_duras_crew", "betor_duras_crew", "cyrano_animated_crew",
-            "dsc_mudd_harry_crew", "dsc_mudd_takeover_crew", "nausicaan_thug_crew", "nog_teenager_crew",
-            "bashir_mirror_crew", "ezri_mirror_crew", "kurros_crew")));
 
         List<Long> frozenCrewIds = character.getFrozenCrewIds();
         MatcherAssert.assertThat(frozenCrewIds, Is.is(Matchers.notNullValue()));

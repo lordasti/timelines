@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @Builder(toBuilder = true)
@@ -75,6 +77,7 @@ public class Crew implements Comparable<Crew>{
 
     @Override
     public String toString(){
-        return name;
+        return name + " " + Stream.of(Stats.values()).map(stat -> "" + getSkill(stat).getAvgTotal()).collect(
+            Collectors.joining(" "));
     }
 }

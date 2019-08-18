@@ -177,13 +177,14 @@ public class VoyageUtil{
         int hazAmPass = 5;
         int hazAmFail = 30;
         int tick = 0;
+        int pick = 0;
         int am = antimatter;
 
         while(am > 0){
             ++tick;
 
             if(tick % hazardTick == 0 && tick % hazardAsRewardTick != 0 && tick % ticksBetweenDilemmas != 0){
-                Skill skill = pickDeterministicSkill(skills, tick);
+                Skill skill = pickDeterministicSkill(skills, pick++);
 
                 int hazDiff = tick * hazSkillPerTick;
                 if(hazDiff < skill.getAvgTotal()){
@@ -199,36 +200,36 @@ public class VoyageUtil{
         return tick * secondsPerTick;
     }
 
-    private static Skill pickDeterministicSkill(List<Skill> skills, int tick){
-        int skillPickRoll = tick % 100;
-        int skillCycle = tick / 100;
+    private static Skill pickDeterministicSkill(List<Skill> skills, int pick){
+        int skillPickRoll = pick % 20;
+        int skillCycle = pick / 20;
 
         int index;
 
         if(skillCycle % 2 == 0){
-            if(skillPickRoll < 35){
+            if(skillPickRoll < 7){
                 index = 0;
-            }else if(skillPickRoll < 60){
+            }else if(skillPickRoll < 12){
                 index = 1;
-            }else if(skillPickRoll < 70){
+            }else if(skillPickRoll < 14){
                 index = 2;
-            }else if(skillPickRoll < 80){
+            }else if(skillPickRoll < 16){
                 index = 3;
-            }else if(skillPickRoll < 90){
+            }else if(skillPickRoll < 18){
                 index = 4;
             }else{
                 index = 5;
             }
         }else{
-            if(skillPickRoll < 10){
+            if(skillPickRoll < 2){
                 index = 5;
-            }else if(skillPickRoll < 20){
+            }else if(skillPickRoll < 4){
                 index = 4;
-            }else if(skillPickRoll < 30){
+            }else if(skillPickRoll < 6){
                 index = 3;
-            }else if(skillPickRoll < 40){
+            }else if(skillPickRoll < 8){
                 index = 2;
-            }else if(skillPickRoll < 65){
+            }else if(skillPickRoll < 13){
                 index = 1;
             }else{
                 index = 0;

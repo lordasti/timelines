@@ -23,9 +23,9 @@ public class GauntletUtil{
 
             gauntlets.put(stat, gauntlet.getScore());
 
-            List<Crew> selectedSheetCrew =
+            List<Crew> selectedCrew =
                 gauntlet.getSlots().stream().map(Slot::getCrew).collect(Collectors.toList());
-            selectedSheetCrew.forEach(crew -> {
+            selectedCrew.forEach(crew -> {
                 if(bestCrew.containsKey(crew.getName())){
                     bestCrew.put(crew.getName(), bestCrew.get(crew.getName()) + 1);
                 }else{
